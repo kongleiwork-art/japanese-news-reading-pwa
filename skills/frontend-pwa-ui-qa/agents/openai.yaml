@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend PWA UI QA"
+  short_description: "沉淀移动端 PWA 前端联调、交互稳定性和验收经验。"
+  default_prompt: "Use $frontend-pwa-ui-qa to audit a mobile-first PWA UI, fix interaction regressions, and standardize navigation states."

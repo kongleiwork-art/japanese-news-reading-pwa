@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #f7f2e8;
+  --surface-2: #f1e8d8;
+  --panel: #fffdfa;
+  --panel-soft: rgba(255, 250, 242, 0.76);
+  --chip-bg: #eee4d3;
+  --line: #dccab0;
+  --line-soft: rgba(165, 129, 85, 0.14);
+  --accent: #9a5319;
+  --accent-strong: #7f4210;
+  --accent-soft: #f2ddc3;
+  --ink: #24170d;
+  --muted: #856648;
+  --muted-soft: #a28668;
+  --blue: #76aebc;
+}
+
+@theme inline {
+  --font-serif-jp: "Baskerville", "Palatino Linotype", "Source Han Serif SC", "Songti SC", "STSong", "Noto Serif SC", "Noto Serif JP", "Yu Mincho", serif;
+  --font-sans-jp: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", "Noto Sans JP", "Segoe UI", sans-serif;
+}
+
+html {
+  background: #ece3d4;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.72), transparent 30%),
+    radial-gradient(circle at bottom, rgba(210, 188, 158, 0.16), transparent 28%),
+    linear-gradient(180deg, #eee5d7 0%, #f7f2e8 22%, #f3ecdf 100%);
+  color: var(--ink);
+  font-family: var(--font-sans-jp);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.shadow-soft {
+  box-shadow: 0 12px 30px rgba(99, 66, 31, 0.08);
+}
+
+.shadow-card {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 10px 28px rgba(85, 55, 24, 0.08);
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(255, 253, 249, 0.94), rgba(255, 249, 241, 0.9));
+  backdrop-filter: blur(18px);
+}
+
+.section-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
