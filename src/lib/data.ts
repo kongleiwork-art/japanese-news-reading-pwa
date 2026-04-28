@@ -223,7 +223,7 @@ export const articlePreviews: ArticlePreview[] = [
     id: "climate-policy",
     channel: "original",
     title: "気候変動と日本の環境政策の行方",
-    source: "NHK NEWS WEB",
+    source: "TBS NEWS DIG",
     category: "环境",
     summary: "日本は2050年のカーボンニュートラル達成に向けて環境政策を強化。",
     readingMinutes: 6,
@@ -235,7 +235,7 @@ export const articlePreviews: ArticlePreview[] = [
     id: "olympics-impact",
     channel: "original",
     title: "東京五輪の経済効果を再評価",
-    source: "NHK NEWS WEB",
+    source: "TBS NEWS DIG",
     category: "经济",
     summary: "東京オリンピックが日本経済に与えた影響を専門家が分析した。",
     readingMinutes: 7,
@@ -278,7 +278,7 @@ export const articleDetails: Record<string, ArticleDetail> = {
   },
   "climate-policy": {
     ...articlePreviews[3],
-    tagLabel: "原文阅读",
+    tagLabel: "实时新闻",
     content: [
       "日本政府は2050年カーボンニュートラル実現に向け、環境政策の見直しを急いでいる。",
       "再生可能エネルギーの導入拡大に加え、産業部門の脱炭素化も大きな課題となる。",
@@ -288,7 +288,7 @@ export const articleDetails: Record<string, ArticleDetail> = {
   },
   "olympics-impact": {
     ...articlePreviews[4],
-    tagLabel: "原文阅读",
+    tagLabel: "实时新闻",
     content: [
       "東京五輪の開催が日本経済にもたらした影響について、改めて検証が進められている。",
       "短期的な需要だけでなく、中長期の成長戦略に結び付いたかが焦点となっている。",

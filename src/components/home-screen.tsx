@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { Bell, Clock3, Search, Sparkles, TrendingUp } from "lucide-react";
 
-import { articlePreviews, categories, type Category, type Channel } from "@/lib/data";
+import {
+  articleCategories,
+  type ArticleCategory,
+  type ArticleChannel,
+  type ArticlePreview,
+} from "@/lib/articles";
 import { cn } from "@/lib/utils";
 
-const allCategory = categories[0];
+const allCategory = articleCategories[0];
 
 const zh = {
   appName: "\u8f7b\u8bfb\u65e5\u8bed",
@@ -16,7 +21,7 @@ const zh = {
 } as const;
 
 const channelConfig: Record<
-  Channel,
+  ArticleChannel,
   { label: string; headline: string; source: string }
 > = {
   easy: {
@@ -25,32 +30,26 @@ const channelConfig: Record<
     source: "\u4eca\u5929\u5df2\u590d\u4e60 8 \u4e2a\uff0c\u5df2\u4fdd\u5b58 5 \u4e2a\u5355\u8bcd",
   },
   original: {
-    label: "\u539f\u6587\u9605\u8bfb",
-    headline: "2 \u4e2a\u5355\u8bcd\u7b49\u5f85\u590d\u4e60",
+    label: "\u5b9e\u65f6\u65b0\u95fb",
+    headline: "2 \u4e2a\u65b0\u95fb\u8bcd\u7b49\u5f85\u590d\u4e60",
     source: "\u4eca\u5929\u5df2\u590d\u4e60 8 \u4e2a\uff0c\u5df2\u4fdd\u5b58 5 \u4e2a\u5355\u8bcd",
   },
 };
 
-const categoryItems: { value: Category; label: string }[] = [
-  { value: categories[0], label: "\u5168\u90e8" },
-  { value: categories[1], label: "\u79d1\u6280" },
-  { value: categories[2], label: "\u7ecf\u6d4e" },
-  { value: categories[3], label: "\u73af\u5883" },
-  { value: categories[4], label: "\u4f53\u80b2" },
-  { value: categories[5], label: "\u6587\u5316" },
-  { value: categories[6], label: "\u653f\u6cbb" },
-];
-
-const categoryLabelMap = Object.fromEntries(
-  categoryItems.map((item) => [item.value, item.label]),
-) as Record<Category, string>;
+const categoryItems: { value: ArticleCategory; label: string }[] = articleCategories.map(
+  (category) => ({
+    value: category,
+    label: category,
+  }),
+);
 
 type HomeScreenProps = {
-  channel: Channel;
-  category: Category;
+  channel: ArticleChannel;
+  category: ArticleCategory;
+  articles: ArticlePreview[];
 };
 
-function buildHomeHref(channel: Channel, category?: Category) {
+function buildHomeHref(channel: ArticleChannel, category?: ArticleCategory) {
   const params = new URLSearchParams();
 
   if (channel === "original") {
@@ -65,9 +64,9 @@ function buildHomeHref(channel: Channel, category?: Category) {
   return query ? `/?${query}` : "/";
 }
 
-export function HomeScreen({ channel, category }: HomeScreenProps) {
+export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
   const current = channelConfig[channel];
-  const filtered = articlePreviews.filter((article) => {
+  const filtered = articles.filter((article) => {
     if (article.channel !== channel) return false;
     if (category === allCategory) return true;
 
@@ -184,7 +183,7 @@ export function HomeScreen({ channel, category }: HomeScreenProps) {
               <div className="p-3.5">
                 <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
                   <span className="inline-flex h-6 items-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] px-3 text-[11px]">
-                    {categoryLabelMap[article.category]}
+                    {article.category}
                   </span>
                   <span>{article.source}</span>
                 </div>

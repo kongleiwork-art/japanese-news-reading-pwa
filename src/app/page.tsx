@@ -1,6 +1,13 @@
 import { AppShell } from "@/components/app-shell";
 import { HomeScreen } from "@/components/home-screen";
-import { categories, type Category, type Channel } from "@/lib/data";
+import {
+  articleCategories,
+  listArticlePreviews,
+  type ArticleCategory,
+  type ArticleChannel,
+} from "@/lib/articles";
+
+export const dynamic = "force-dynamic";
 
 type HomePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -9,14 +16,23 @@ type HomePageProps = {
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const channel = params.channel === "original" ? "original" : "easy";
-  const categoryParam = typeof params.category === "string" ? params.category : categories[0];
-  const category = categories.includes(categoryParam as Category)
-    ? (categoryParam as Category)
-    : categories[0];
+  const categoryParam =
+    typeof params.category === "string" ? params.category : articleCategories[0];
+  const category = articleCategories.includes(categoryParam as ArticleCategory)
+    ? (categoryParam as ArticleCategory)
+    : articleCategories[0];
+  const articles = await listArticlePreviews({
+    channel: channel as ArticleChannel,
+    category,
+  });
 
   return (
     <AppShell activeTab="home">
-      <HomeScreen channel={channel as Channel} category={category} />
+      <HomeScreen
+        channel={channel as ArticleChannel}
+        category={category}
+        articles={articles}
+      />
     </AppShell>
   );
 }

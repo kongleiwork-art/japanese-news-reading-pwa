@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 
 import { ArticleScreen } from "@/components/article-screen";
-import { articleDetails } from "@/lib/data";
+import { getArticleDetail } from "@/lib/articles";
+
+export const dynamic = "force-dynamic";
 
 type ArticlePageProps = {
   params: Promise<{ id: string }>;
@@ -11,7 +13,7 @@ type ArticlePageProps = {
 export default async function ArticlePage({ params, searchParams }: ArticlePageProps) {
   const { id } = await params;
   const query = await searchParams;
-  const article = articleDetails[id];
+  const article = await getArticleDetail(id);
   const selectedWordId = typeof query.word === "string" ? query.word : undefined;
 
   if (!article) {

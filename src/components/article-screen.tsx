@@ -9,7 +9,7 @@ import {
   Tag,
 } from "lucide-react";
 
-import type { ArticleDetail, VocabularyItem } from "@/lib/data";
+import type { ArticleDetail, VocabularyItem } from "@/lib/articles";
 import { VocabularyModal } from "@/components/vocabulary-modal";
 import { cn } from "@/lib/utils";
 
@@ -18,18 +18,12 @@ type ArticleScreenProps = {
   selectedWordId?: string;
 };
 
-const articleTokens: Record<string, string[]> = {
-  "ai-lead": ["人工知能", "技術"],
-  "tokyo-growth": ["成長"],
-  "sports-reform": ["環境"],
-  "climate-policy": ["環境", "社会"],
-  "olympics-impact": ["成長", "社会"],
-};
-
 export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
   const selectedWord =
     article.savedWords.find((item) => item.id === selectedWordId) ?? null;
-  const tokens = articleTokens[article.id] ?? [];
+  const tokens = [...article.savedWords.map((item) => item.surface)].sort(
+    (left, right) => right.length - left.length,
+  );
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-[var(--surface)] pb-32 shadow-[0_18px_48px_rgba(77,52,27,0.12)]">
@@ -117,7 +111,7 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
           </div>
 
           <div className="mt-5 rounded-[20px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#f6eddb_0%,#f1e4cf_100%)] px-4 py-3 text-sm text-[var(--muted)] shadow-[0_6px_18px_rgba(111,77,39,0.06)]">
-            <span className="mr-2">💡</span>
+            <span className="mr-2">提示</span>
             点击带下划线的单词，可以打开对应词条详情。
           </div>
 
@@ -146,7 +140,9 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="section-label">Saved Vocabulary</p>
-              <h3 className="mt-2 text-lg font-semibold text-[var(--ink)]">这篇文章保存的单词</h3>
+              <h3 className="mt-2 text-lg font-semibold text-[var(--ink)]">
+                这篇文章保存的单词
+              </h3>
             </div>
             <div className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent-strong)]">
               {article.savedWords.length} 个词
@@ -184,7 +180,7 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
         <VocabularyModal
           word={selectedWord}
           closeHref={`/article/${article.id}`}
-          footerText="继续点正文里的其他单词，可以切换当前词条详情。"
+          footerText="继续点击正文里的其他单词，可以切换当前词条详情。"
         />
       ) : null}
 
