@@ -9,7 +9,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "npm run test:parsers",
+    "test:parsers": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-parsers.test.mjs",
+    "test:content": "node scripts/content-pipeline-smoke.mjs"
   },
   "keywords": [],
   "author": "",
