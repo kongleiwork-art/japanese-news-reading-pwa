@@ -29,6 +29,7 @@ npm.cmd run test:parsers
 npm.cmd run lint
 npm.cmd run build
 npm.cmd run test:content
+npm.cmd run test:learning
 ```
 
 当前稳定性边界：
@@ -269,14 +270,34 @@ scripts/learning-state-smoke.mjs
 
 ## 7. 推荐下一步任务
 
-下一位接手者可以直接从这个任务开始：
+2026-04-29 续接进展：本地学习闭环 MVP 已完成第一版。
 
-> 实现 `src/lib/learning-store.ts`，并把文章详情页的“收藏文章”和“保存单词”接入 localStorage。
+已落地：
 
-完成后再推进：
+- 新增 `src/lib/learning-store.ts`，用 `qingdu-learning-state-v1` 管理收藏文章、保存单词、阅读历史、复习记录。
+- 新增 `src/lib/use-learning-state.ts`，用 `useSyncExternalStore` 订阅本地状态。
+- 新增 `src/components/article-learning-controls.tsx`，文章详情页接入收藏文章、保存单词、阅读历史。
+- 新增 `src/lib/articles/tokenizer.ts`，文章正文现在通过词库最长匹配进行轻量分词/标注，并支持词条别名（如 `人工知能` -> `AI`）。
+- `/words` 已改为读取真实保存词，并提供空状态与删除保存词。
+- `/review` 已改为从保存词生成队列，评分后更新 `reviewCount` 与 `nextReviewAt`，并在本轮完成后显示完成态。
+- `/me` 的已读文章、收藏文章、保存单词、待复习统计来自本地状态。
+- 新增 `scripts/learning-state-smoke.mjs` 与 `npm.cmd run test:learning`。
+- 新增 `tests/articles-tokenizer.test.mjs` 与 `npm.cmd run test:tokenizer`。
 
-1. `/words` 接真实保存词。
-2. `/review` 接真实复习队列。
-3. `/me` 接真实统计。
+已验证：
 
-这条路线风险最低，能最快把产品从“新闻阅读 demo”推进到“有学习闭环的可试用 PWA”。
+```powershell
+npm.cmd run test:learning
+npm.cmd run test:tokenizer
+npm.cmd run lint
+npm.cmd run build
+npm.cmd run test:parsers
+npm.cmd run test:content
+```
+
+推荐下一步任务：
+
+1. 用浏览器手动验收：文章页保存词 -> `/words` 展示 -> `/review` 评分 -> 刷新后状态仍保留。
+2. 首页顶部 “TODAY REVIEW” 的保存词和待复习数字仍是静态文案，可接入 `learning-store`。
+3. 复习页后续可增加本轮进度条的真实进度，以及“继续复习最近保存词 / 只看到期词”的模式切换。
+4. 收藏文章目前只在状态和 `/me` 统计里体现，后续可在首页或“我的”页加收藏文章列表入口。

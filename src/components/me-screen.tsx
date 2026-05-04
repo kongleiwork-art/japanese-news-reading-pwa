@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ChevronRight,
@@ -10,7 +12,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { meStats, streakCells } from "@/lib/data";
+import { streakCells } from "@/lib/data";
+import { getLearningStats } from "@/lib/learning-store";
+import { useLearningState } from "@/lib/use-learning-state";
 import { cn } from "@/lib/utils";
 
 const toneMap = {
@@ -21,6 +25,15 @@ const toneMap = {
 } as const;
 
 export function MeScreen() {
+  const learningState = useLearningState();
+  const stats = getLearningStats(learningState);
+  const meStats = [
+    { label: "已读文章", value: String(stats.readArticleCount), tone: "amber" },
+    { label: "收藏文章", value: String(stats.savedArticleCount), tone: "sky" },
+    { label: "保存单词", value: String(stats.savedWordCount), tone: "rose" },
+    { label: "今日待复习", value: String(stats.dueReviewCount), tone: "slate" },
+  ] as const;
+
   return (
     <div className="pb-10">
       <header className="px-6 pb-4 pt-5">

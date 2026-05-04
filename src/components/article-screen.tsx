@@ -2,28 +2,35 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Bookmark,
   Clock3,
+  Eye,
   EyeOff,
-  Share2,
   Tag,
 } from "lucide-react";
 
+import { buildArticleImageStyle } from "@/components/article-image-style";
 import type { ArticleDetail, VocabularyItem } from "@/lib/articles";
-import { VocabularyModal } from "@/components/vocabulary-modal";
+import { ArticleLearningControls } from "@/components/article-learning-controls";
+import { segmentTextWithVocabulary } from "@/lib/articles/tokenizer";
 import { cn } from "@/lib/utils";
 
 type ArticleScreenProps = {
   article: ArticleDetail;
   selectedWordId?: string;
+  showReadings?: boolean;
 };
 
-export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
+export function ArticleScreen({
+  article,
+  selectedWordId,
+  showReadings = false,
+}: ArticleScreenProps) {
   const selectedWord =
     article.savedWords.find((item) => item.id === selectedWordId) ?? null;
-  const tokens = [...article.savedWords.map((item) => item.surface)].sort(
-    (left, right) => right.length - left.length,
-  );
+  const readingToggleHref = buildArticleHref(article.id, {
+    wordId: selectedWordId,
+    showReadings: !showReadings,
+  });
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-[var(--surface)] pb-32 shadow-[0_18px_48px_rgba(77,52,27,0.12)]">
@@ -39,11 +46,28 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
           {article.title}
         </h1>
         <Link
-          href="#reading-mode"
-          aria-label="定位到阅读模式"
-          className="rounded-[18px] border border-[var(--line-soft)] glass-panel p-3 shadow-card"
+          href={readingToggleHref}
+          scroll={false}
+          aria-label={showReadings ? "隐藏重点词读音" : "显示重点词读音"}
+          title={showReadings ? "隐藏重点词读音" : "显示重点词读音"}
+          className={cn(
+            "relative isolate rounded-[18px] border p-3 shadow-card transition duration-200",
+            showReadings
+              ? "reading-toggle-active text-[#2f6f78]"
+              : "border-[var(--line-soft)] glass-panel text-[var(--muted)]",
+          )}
         >
-          <EyeOff className="h-5 w-5 text-[var(--muted)]" />
+          {showReadings ? (
+            <span
+              aria-hidden="true"
+              className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#4d9498] shadow-[0_0_0_3px_rgba(89,148,153,0.16)]"
+            />
+          ) : null}
+          {showReadings ? (
+            <Eye className="h-5 w-5" />
+          ) : (
+            <EyeOff className="h-5 w-5" />
+          )}
         </Link>
       </header>
 
@@ -52,7 +76,7 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
           <p className="section-label">ARTICLE DETAIL</p>
           <div
             className="mt-3 h-[196px] rounded-[26px] shadow-[0_12px_30px_rgba(79,53,27,0.1)]"
-            style={{ background: article.imageStyle }}
+            style={buildArticleImageStyle(article)}
           />
 
           <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[var(--muted)]">
@@ -83,7 +107,7 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
               }
             />
             <InfoCard
-              label="已存单词"
+              label="精选词"
               value={
                 <span className="inline-flex items-center gap-1">
                   <Tag className="h-3.5 w-3.5 text-[var(--muted)]" />
@@ -106,28 +130,48 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
               </p>
             </div>
             <div className="rounded-[18px] border border-[var(--line-soft)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--accent)]">
-              学习模式
+              {showReadings ? "重点读音" : "学习模式"}
             </div>
           </div>
 
           <div className="mt-5 rounded-[20px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#f6eddb_0%,#f1e4cf_100%)] px-4 py-3 text-sm text-[var(--muted)] shadow-[0_6px_18px_rgba(111,77,39,0.06)]">
             <span className="mr-2">提示</span>
-            点击带下划线的单词，可以打开对应词条详情。
+            {showReadings
+              ? "已显示新闻重点词的平假名读音；点击词语仍可打开词条详情。"
+              : "点击带下划线的单词，可以打开对应词条详情。"}
           </div>
 
-          <div className="mt-6 space-y-5 border-t border-[var(--line-soft)] pt-6 text-[26px] leading-[2.02] text-[var(--ink)]">
+          <div
+            className={cn(
+              "mt-6 space-y-5 border-t border-[var(--line-soft)] pt-6 text-[26px] text-[var(--ink)]",
+              showReadings ? "leading-[2.35]" : "leading-[2.02]",
+            )}
+          >
             {article.content.map((text, index) => (
               <p key={index}>
-                {splitWithTokens(text, tokens).map((part, partIndex) =>
+                {segmentTextWithVocabulary(text, article.savedWords).map((part, partIndex) =>
                   part.type === "text" ? (
                     <span key={`${index}-${partIndex}`}>{part.value}</span>
                   ) : (
                     <Link
                       key={`${index}-${partIndex}`}
-                      href={buildWordHref(article.id, article.savedWords, part.value)}
-                      className="inline rounded-[6px] border-b border-[#8cb4c0] px-0.5 text-inherit transition hover:bg-[rgba(118,174,188,0.10)] hover:text-[#5f8d9a] focus:outline-none focus:ring-2 focus:ring-[#8cb4c0]/40"
+                      href={buildWordHref(
+                        article.id,
+                        article.savedWords,
+                        part.wordId,
+                        showReadings,
+                      )}
+                      scroll={false}
+                      className="inline rounded-[7px] bg-[rgba(118,174,188,0.12)] px-1 font-semibold text-[#4f8796] underline decoration-[#4f8796] decoration-2 underline-offset-[6px] transition hover:bg-[rgba(118,174,188,0.22)] hover:text-[#376b78] focus:outline-none focus:ring-2 focus:ring-[#8cb4c0]/45"
                     >
-                      {part.value}
+                      {showReadings ? (
+                        <VocabularyRuby
+                          value={part.value}
+                          word={getWordById(article.savedWords, part.wordId)}
+                        />
+                      ) : (
+                        part.value
+                      )}
                     </Link>
                   ),
                 )}
@@ -139,9 +183,9 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
         <div className="mt-5 rounded-[28px] border border-[var(--line-soft)] bg-[var(--panel)] px-5 py-5 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="section-label">Saved Vocabulary</p>
+              <p className="section-label">Selected Vocabulary</p>
               <h3 className="mt-2 text-lg font-semibold text-[var(--ink)]">
-                这篇文章保存的单词
+                这篇文章的精选学习词
               </h3>
             </div>
             <div className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent-strong)]">
@@ -149,64 +193,44 @@ export function ArticleScreen({ article, selectedWordId }: ArticleScreenProps) {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            {article.savedWords.map((word) => (
-              <Link
-                key={word.id}
-                href={`/article/${article.id}?word=${word.id}`}
-                className={cn(
-                  "rounded-[18px] border px-4 py-3 text-left shadow-[0_4px_12px_rgba(105,77,47,0.05)] transition",
-                  selectedWord?.id === word.id
-                    ? "border-[#6ea8b8] bg-[#79afbe] text-white"
-                    : "border-[var(--line-soft)] bg-[var(--surface)] text-[var(--ink)]",
-                )}
-              >
-                <div className="font-serif-jp text-[20px] font-bold">{word.surface}</div>
-                <div
+          {article.savedWords.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {article.savedWords.map((word) => (
+                <Link
+                  key={word.id}
+                  href={buildArticleHref(article.id, {
+                    wordId: word.id,
+                    showReadings,
+                  })}
+                  scroll={false}
                   className={cn(
-                    "mt-1 text-xs",
-                    selectedWord?.id === word.id ? "text-white/80" : "text-[var(--muted)]",
+                    "rounded-[18px] border px-4 py-3 text-left shadow-[0_4px_12px_rgba(105,77,47,0.05)] transition",
+                    selectedWord?.id === word.id
+                      ? "border-[#6ea8b8] bg-[#79afbe] text-white"
+                      : "border-[var(--line-soft)] bg-[var(--surface)] text-[var(--ink)]",
                   )}
                 >
-                  {word.reading} · {word.meanings[0]}
-                </div>
-              </Link>
-            ))}
-          </div>
+                  <div className="font-serif-jp text-[20px] font-bold">{word.surface}</div>
+                  <div
+                    className={cn(
+                      "mt-1 text-xs",
+                      selectedWord?.id === word.id ? "text-white/80" : "text-[var(--muted)]",
+                    )}
+                  >
+                    {word.reading} · {word.meanings[0]}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-[20px] border border-dashed border-[var(--line-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-5 text-sm leading-6 text-[var(--muted)]">
+              本篇暂未收录可讲解词条
+            </div>
+          )}
         </div>
       </section>
 
-      {selectedWord ? (
-        <VocabularyModal
-          word={selectedWord}
-          closeHref={`/article/${article.id}`}
-          footerText="继续点击正文里的其他单词，可以切换当前词条详情。"
-        />
-      ) : null}
-
-      <footer className="fixed bottom-[86px] left-1/2 z-20 flex w-[calc(100%-28px)] max-w-[392px] -translate-x-1/2 justify-around rounded-[22px] border border-[var(--line-soft)] glass-panel px-4 py-3 shadow-card">
-        <button
-          type="button"
-          className="flex min-w-[88px] flex-col items-center gap-1 rounded-[16px] px-2 py-1 text-sm text-[var(--muted)]"
-        >
-          <Bookmark className="h-5 w-5" />
-          收藏文章
-        </button>
-        <button
-          type="button"
-          className="flex min-w-[88px] flex-col items-center gap-1 rounded-[16px] px-2 py-1 text-sm text-[var(--muted)]"
-        >
-          <Share2 className="h-5 w-5" />
-          分享
-        </button>
-        <Link
-          href="/words"
-          className="flex min-w-[88px] flex-col items-center gap-1 rounded-[16px] px-2 py-1 text-sm text-[#78aebb] transition hover:bg-[rgba(118,174,188,0.12)]"
-        >
-          <Bookmark className="h-5 w-5" />
-          去单词本
-        </Link>
-      </footer>
+      <ArticleLearningControls article={article} selectedWord={selectedWord} />
     </div>
   );
 }
@@ -226,33 +250,58 @@ function InfoCard({
   );
 }
 
-function buildWordHref(articleId: string, words: VocabularyItem[], surface: string) {
-  const word = words.find((item) => item.surface === surface);
-  return word ? `/article/${articleId}?word=${word.id}` : `/article/${articleId}`;
-}
+function buildArticleHref(
+  articleId: string,
+  options: {
+    wordId?: string;
+    showReadings?: boolean;
+  } = {},
+) {
+  const params = new URLSearchParams();
 
-function splitWithTokens(text: string, tokens: string[]) {
-  const result: { type: "text" | "token"; value: string }[] = [];
-  let rest = text;
-
-  while (rest.length > 0) {
-    const next = tokens
-      .map((token) => ({ token, index: rest.indexOf(token) }))
-      .filter((entry) => entry.index >= 0)
-      .sort((a, b) => a.index - b.index)[0];
-
-    if (!next) {
-      result.push({ type: "text", value: rest });
-      break;
-    }
-
-    if (next.index > 0) {
-      result.push({ type: "text", value: rest.slice(0, next.index) });
-    }
-
-    result.push({ type: "token", value: next.token });
-    rest = rest.slice(next.index + next.token.length);
+  if (options.wordId) {
+    params.set("word", options.wordId);
   }
 
-  return result;
+  if (options.showReadings) {
+    params.set("readings", "1");
+  }
+
+  const query = params.toString();
+  return query ? `/article/${articleId}?${query}` : `/article/${articleId}`;
+}
+
+function getWordById(words: VocabularyItem[], wordId: string) {
+  return words.find((item) => item.id === wordId) ?? null;
+}
+
+function buildWordHref(
+  articleId: string,
+  words: VocabularyItem[],
+  wordId: string,
+  showReadings: boolean,
+) {
+  const word = words.find((item) => item.id === wordId);
+  return word
+    ? buildArticleHref(articleId, { wordId: word.id, showReadings })
+    : buildArticleHref(articleId, { showReadings });
+}
+
+function VocabularyRuby({
+  value,
+  word,
+}: {
+  value: string;
+  word: VocabularyItem | null;
+}) {
+  if (!word?.reading || word.reading === value) {
+    return <>{value}</>;
+  }
+
+  return (
+    <ruby className="ruby-reading">
+      {value}
+      <rt>{word.reading}</rt>
+    </ruby>
+  );
 }

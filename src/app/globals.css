@@ -53,6 +53,14 @@ button {
   font: inherit;
 }
 
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 .shadow-soft {
   box-shadow: 0 12px 30px rgba(99, 66, 31, 0.08);
 }
@@ -68,10 +76,35 @@ button {
   backdrop-filter: blur(18px);
 }
 
+.reading-toggle-active {
+  border-color: rgba(82, 139, 145, 0.34);
+  background:
+    linear-gradient(180deg, rgba(244, 255, 253, 0.95), rgba(214, 238, 236, 0.9)),
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.98), transparent 44%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.82) inset,
+    0 10px 24px rgba(62, 105, 109, 0.13),
+    0 0 0 1px rgba(255, 255, 255, 0.64) inset;
+}
+
 .section-label {
   color: var(--muted);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.ruby-reading {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+.ruby-reading rt {
+  color: var(--muted);
+  font-family: var(--font-sans-jp);
+  font-size: 0.48em;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
 }

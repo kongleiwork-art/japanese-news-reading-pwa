@@ -15,10 +15,17 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
   const query = await searchParams;
   const article = await getArticleDetail(id);
   const selectedWordId = typeof query.word === "string" ? query.word : undefined;
+  const showReadings = query.readings === "1";
 
   if (!article) {
     notFound();
   }
 
-  return <ArticleScreen article={article} selectedWordId={selectedWordId} />;
+  return (
+    <ArticleScreen
+      article={article}
+      selectedWordId={selectedWordId}
+      showReadings={showReadings}
+    />
+  );
 }

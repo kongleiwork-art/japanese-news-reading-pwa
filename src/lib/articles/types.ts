@@ -16,11 +16,15 @@ export type ConcreteArticleCategory = Exclude<ArticleCategory, "全部">;
 export type VocabularyItem = {
   id: string;
   surface: string;
+  aliases?: string[];
   reading: string;
   romaji: string;
-  level: "N1" | "N2" | "N3" | "N4";
+  level: "N1" | "N2" | "N3" | "N4" | "N5";
   partOfSpeech: string;
   meanings: string[];
+  englishMeanings?: string[];
+  source?: "local" | "jisho";
+  generated?: boolean;
   examples: {
     japanese: string;
     kana: string;
@@ -46,6 +50,7 @@ export type ArticlePreview = {
   summary: string;
   readingMinutes: number;
   publishedAt: string;
+  image: ArticleImage;
   imageStyle: string;
 };
 

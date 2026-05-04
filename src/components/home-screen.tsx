@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bell, Clock3, Search, Sparkles, TrendingUp } from "lucide-react";
 
+import { buildArticleImageStyle } from "@/components/article-image-style";
 import {
   articleCategories,
   type ArticleCategory,
@@ -122,7 +123,7 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
           </div>
         </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="scrollbar-none mt-4 flex gap-2 overflow-x-auto pb-1">
           {categoryItems.map((item) => {
             const active = item.value === category;
 
@@ -178,21 +179,27 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
             <Link
               key={article.id}
               href={`/article/${article.id}`}
-              className="grid grid-cols-[1fr_98px] overflow-hidden rounded-[22px] border border-[var(--line-soft)] bg-[var(--panel)] shadow-card transition hover:-translate-y-0.5"
+              className="block overflow-hidden rounded-[22px] border border-[var(--line-soft)] bg-[var(--panel)] shadow-card transition hover:-translate-y-0.5"
             >
-              <div className="p-3.5">
+              <div
+                aria-hidden="true"
+                className="h-[92px] w-full border-b border-[var(--line-soft)]"
+                style={buildArticleImageStyle(article)}
+              />
+
+              <div className="p-4">
                 <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                  <span className="inline-flex h-6 items-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] px-3 text-[11px]">
+                  <span className="inline-flex h-6 shrink-0 items-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] px-3 text-[11px]">
                     {article.category}
                   </span>
-                  <span>{article.source}</span>
+                  <span className="min-w-0 truncate">{article.source}</span>
                 </div>
 
-                <h2 className="mt-2.5 line-clamp-2 font-serif-jp text-[21px] font-bold leading-[1.35] text-[var(--ink)]">
+                <h2 className="mt-3 line-clamp-3 font-serif-jp text-[20px] font-bold leading-[1.38] text-[var(--ink)]">
                   {article.title}
                 </h2>
 
-                <p className="mt-1.5 line-clamp-2 text-[14px] leading-6 text-[var(--muted)]">
+                <p className="mt-2 line-clamp-2 text-[14px] leading-6 text-[var(--muted)]">
                   {article.summary}
                 </p>
 
@@ -202,11 +209,6 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
                   <span>{article.publishedAt}</span>
                 </div>
               </div>
-
-              <div
-                className="h-full min-h-[146px] w-full"
-                style={{ background: article.imageStyle }}
-              />
             </Link>
           ))}
         </div>

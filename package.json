@@ -10,9 +10,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "npm run test:parsers",
+    "test": "npm run test:parsers && npm run test:meta && npm run test:tokenizer && npm run test:tokenizer-grammar-tails && npm run test:dictionary && npm run test:dictionary-coverage",
     "test:parsers": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-parsers.test.mjs",
-    "test:content": "node scripts/content-pipeline-smoke.mjs"
+    "test:meta": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-meta.test.mjs",
+    "test:tokenizer": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-tokenizer.test.mjs",
+    "test:tokenizer-grammar-tails": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-tokenizer-grammar-tails.test.mjs",
+    "test:dictionary": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-dictionary-api.test.mjs",
+    "test:dictionary-coverage": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-dictionary-coverage.test.mjs",
+    "report:dictionary": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dictionary-coverage-report.mjs",
+    "test:content": "node scripts/content-pipeline-smoke.mjs",
+    "test:learning": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/learning-state-smoke.mjs"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +30,8 @@
     "next": "^16.2.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "wanakana": "^5.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",

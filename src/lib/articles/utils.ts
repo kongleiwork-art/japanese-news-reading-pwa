@@ -83,11 +83,30 @@ export function normalizeWhitespace(value: string) {
 }
 
 export function extractMetaContent(html: string, name: string) {
+  const metaTags = html.match(/<meta\b[^>]*>/gi) ?? [];
+
+  for (const tag of metaTags) {
+    const metaName = getHtmlAttribute(tag, "name") ?? getHtmlAttribute(tag, "property");
+
+    if (metaName?.toLowerCase() !== name.toLowerCase()) {
+      continue;
+    }
+
+    const content = getHtmlAttribute(tag, "content");
+    if (content) {
+      return decodeHtml(content);
+    }
+  }
+
+  return undefined;
+}
+
+function getHtmlAttribute(tag: string, attributeName: string) {
   const pattern = new RegExp(
-    `<meta[^>]+(?:name|property)=["']${escapeRegExp(name)}["'][^>]+content=["']([\\s\\S]*?)["']`,
+    `\\b${escapeRegExp(attributeName)}\\s*=\\s*(["'])([\\s\\S]*?)\\1`,
     "i",
   );
-  return html.match(pattern)?.[1];
+  return tag.match(pattern)?.[2];
 }
 
 export function extractTagText(html: string, tagName: string) {

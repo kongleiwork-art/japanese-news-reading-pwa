@@ -1,5 +1,10 @@
 import { ARTICLES_CACHE_TTL_MS } from "./config.ts";
-import { getEasyCookieCacheState, loadEasyArticles, loadNewsWebArticles } from "./sources.ts";
+import {
+  getEasyCookieCacheState,
+  loadEasyArticles,
+  loadNewsWebArticleById,
+  loadNewsWebArticles,
+} from "./sources.ts";
 import {
   articleCategories,
   type ArticleCategory,
@@ -144,16 +149,30 @@ async function getSourceArticles(
   return promise;
 }
 
-async function getNormalizedArticles() {
-  const [easyArticles, newsWebArticles] = await Promise.all([
-    getSourceArticles("easy", loadEasyArticles),
-    getSourceArticles("original", loadNewsWebArticles),
-  ]);
+async function getNormalizedArticles(filters?: {
+  channel?: ArticleChannel;
+}) {
+  const requestedChannels = filters?.channel
+    ? [filters.channel]
+    : (["easy", "original"] as const);
+  const articlesByChannel = await Promise.all(
+    requestedChannels.map((channel) =>
+      channel === "easy"
+        ? getSourceArticles("easy", loadEasyArticles)
+        : getSourceArticles("original", loadNewsWebArticles),
+    ),
+  );
 
-  return [...easyArticles, ...newsWebArticles].sort(
+  return articlesByChannel.flat().sort(
     (left, right) =>
       new Date(right.publishedAtIso).getTime() - new Date(left.publishedAtIso).getTime(),
   );
+}
+
+function inferArticleChannel(articleId: string): ArticleChannel | undefined {
+  if (/^ne\d+$/i.test(articleId)) return "easy";
+  if (/^\d+$/.test(articleId)) return "original";
+  return undefined;
 }
 
 function matchesFilters(
@@ -188,6 +207,7 @@ function toScreenPreview(article: NormalizedArticle) {
     summary: article.summary,
     readingMinutes: article.readingMinutes,
     publishedAt: article.publishedAt,
+    image: article.image,
     imageStyle: article.imageStyle,
   };
 }
@@ -218,13 +238,12 @@ export async function listArticlePreviews(filters?: {
   channel?: ArticleChannel;
   category?: ArticleCategory;
 }) {
-  const articles = await getNormalizedArticles();
+  const articles = await getNormalizedArticles({ channel: filters?.channel });
   return articles.filter((article) => matchesFilters(article, filters)).map(toScreenPreview);
 }
 
 export async function getArticleDetail(articleId: string) {
-  const articles = await getNormalizedArticles();
-  const article = articles.find((item) => item.id === articleId);
+  const article = await findArticleById(articleId);
 
   if (!article) {
     return null;
@@ -242,16 +261,27 @@ export async function listStandardizedArticles(filters?: {
   channel?: ArticleChannel;
   category?: ArticleCategory;
 }) {
-  const articles = await getNormalizedArticles();
+  const articles = await getNormalizedArticles({ channel: filters?.channel });
   return articles
     .filter((article) => matchesFilters(article, filters))
     .map(toStandardizedPreview);
 }
 
 export async function getStandardizedArticleDetail(articleId: string) {
-  const articles = await getNormalizedArticles();
-  const article = articles.find((item) => item.id === articleId);
+  const article = await findArticleById(articleId);
   return article ? toStandardizedDetail(article) : null;
+}
+
+async function findArticleById(articleId: string) {
+  const channel = inferArticleChannel(articleId);
+  const articles = await getNormalizedArticles({ channel });
+  const article = articles.find((item) => item.id === articleId);
+
+  if (article || channel !== "original") {
+    return article ?? null;
+  }
+
+  return loadNewsWebArticleById(articleId).catch(() => null);
 }
 
 export function getArticlePipelineHealth() {

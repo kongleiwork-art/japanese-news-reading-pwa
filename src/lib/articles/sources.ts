@@ -32,7 +32,7 @@ import {
   mergeCookieJar,
   serializeCookieJar,
 } from "./utils.ts";
-import { chooseVocabularyIds, getVocabularyById } from "./vocabulary.ts";
+import { chooseVocabularyItems } from "./vocabulary.ts";
 
 type SourceLoadResult = {
   articles: NormalizedArticle[];
@@ -135,17 +135,23 @@ export function getEasyCookieCacheState() {
 }
 
 function buildNormalizedArticle(
-  input: Omit<NormalizedArticle, "publishedAt" | "readingMinutes" | "imageStyle" | "savedWords">,
+  input: Omit<
+    NormalizedArticle,
+    "publishedAt" | "readingMinutes" | "imageStyle" | "savedWords" | "vocabularyIds"
+  >,
 ) {
   const readingMinutes = Math.max(1, Math.ceil(input.content.join("").length / 120));
   const imageStyle = buildImageStyle(`${input.channel}:${input.id}:${input.title}`);
+  const articleText = [input.title, input.summary, input.content.join(" ")].join("\n");
+  const savedWords = chooseVocabularyItems(articleText, input.category);
 
   return {
     ...input,
+    vocabularyIds: savedWords.map((word) => word.id),
     readingMinutes,
     publishedAt: formatPublishedAt(input.publishedAtIso),
     imageStyle,
-    savedWords: input.vocabularyIds.map(getVocabularyById),
+    savedWords,
   } satisfies NormalizedArticle;
 }
 
@@ -171,11 +177,6 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
           entry.lastmod,
         );
         const category = guessCategoryFromText([title, summary, content.join(" ")].join(" "));
-        const vocabularyIds = chooseVocabularyIds(
-          [title, summary, content.join(" ")].join("\n"),
-          category,
-        );
-
         return buildNormalizedArticle({
           id: entry.loc.match(/\/(ne\d+)\/\1\.html$/i)?.[1] ?? entry.loc,
           channel: "easy",
@@ -196,7 +197,6 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
                 alt: `${title} cover`,
               },
           content,
-          vocabularyIds,
           tagLabel: "简单日语",
         });
       } catch {
@@ -228,10 +228,6 @@ export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
         const category = guessCategoryFromText(
           [title, summary, topicLabel, content.join(" ")].join(" "),
         );
-        const vocabularyIds = chooseVocabularyIds(
-          [title, summary, topicLabel, content.join(" ")].join("\n"),
-          category,
-        );
         const imageUrl = extractMetaContent(html, "og:image") ?? "";
         const broadcaster = extractNewsWebBroadcaster(html);
 
@@ -255,7 +251,6 @@ export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
                 alt: `${title} cover`,
               },
           content,
-          vocabularyIds,
           tagLabel: "实时新闻",
         });
       } catch {
@@ -269,4 +264,45 @@ export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
     articles: articles.filter((article): article is NormalizedArticle => article !== null),
     failedItems,
   };
+}
+
+export async function loadNewsWebArticleById(articleId: string) {
+  if (!/^\d+$/.test(articleId)) {
+    return null;
+  }
+
+  const articleUrl = `https://newsdig.tbs.co.jp/articles/-/${articleId}?display=1`;
+  const html = await fetchText(articleUrl);
+  const title = extractNewsWebTitle(html);
+  const summary = extractNewsWebSummary(html);
+  const content = extractNewsWebContent(html, summary);
+  const topicLabel = extractNewsWebTopicLabel(html);
+  const category = guessCategoryFromText(
+    [title, summary, topicLabel, content.join(" ")].join(" "),
+  );
+  const imageUrl = extractMetaContent(html, "og:image") ?? "";
+  const broadcaster = extractNewsWebBroadcaster(html);
+
+  return buildNormalizedArticle({
+    id: articleId,
+    channel: "original",
+    title,
+    source: broadcaster,
+    category,
+    summary: summary || title,
+    publishedAtIso: extractNewsWebPublishedAt(html),
+    image: imageUrl
+      ? {
+          type: "remote",
+          value: imageUrl,
+          alt: title,
+        }
+      : {
+          type: "gradient",
+          value: buildImageStyle(title),
+          alt: `${title} cover`,
+        },
+    content,
+    tagLabel: "实时新闻",
+  });
 }

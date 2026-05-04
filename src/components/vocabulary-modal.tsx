@@ -1,15 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { Bookmark, Sparkles, X } from "lucide-react";
+import { Bookmark, Check, Sparkles, X } from "lucide-react";
 
-import type { VocabularyItem } from "@/lib/data";
+import type { VocabularyItem } from "@/lib/articles";
+import { cn } from "@/lib/utils";
 
 type VocabularyModalProps = {
   word: VocabularyItem | null;
   closeHref?: string;
   onClose?: () => void;
   footerText?: string;
+  saveAction?: {
+    active: boolean;
+    label: string;
+    activeLabel: string;
+    onClick: () => void;
+  };
 };
 
 export function VocabularyModal({
@@ -17,6 +24,7 @@ export function VocabularyModal({
   closeHref,
   onClose,
   footerText = "继续点开其他单词，可以快速切换当前词条详情。",
+  saveAction,
 }: VocabularyModalProps) {
   if (!word) return null;
 
@@ -25,6 +33,7 @@ export function VocabularyModal({
       {closeHref ? (
         <Link
           href={closeHref}
+          scroll={false}
           aria-label="关闭词条详情"
           className="fixed inset-0 z-[80] bg-[rgba(36,23,13,0.28)] backdrop-blur-[6px]"
         />
@@ -61,16 +70,29 @@ export function VocabularyModal({
             </div>
 
             <div className="flex gap-2">
-              <button
-                type="button"
-                aria-label="收藏单词"
-                className="rounded-2xl bg-[var(--blue)] p-3 text-white shadow-card transition hover:brightness-105"
-              >
-                <Bookmark className="h-5 w-5" />
-              </button>
+              {saveAction ? (
+                <button
+                  type="button"
+                  aria-label={saveAction.active ? saveAction.activeLabel : saveAction.label}
+                  aria-pressed={saveAction.active}
+                  title={saveAction.active ? saveAction.activeLabel : saveAction.label}
+                  onClick={saveAction.onClick}
+                  className={cn(
+                    "rounded-2xl border border-[var(--line-soft)] bg-[var(--chip-bg)] p-3 text-[var(--muted)] shadow-card transition hover:bg-[var(--accent-soft)]",
+                    saveAction.active && "text-[var(--accent)]",
+                  )}
+                >
+                  {saveAction.active ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    <Bookmark className="h-5 w-5" />
+                  )}
+                </button>
+              ) : null}
               {closeHref ? (
                 <Link
                   href={closeHref}
+                  scroll={false}
                   aria-label="关闭词条详情"
                   className="rounded-2xl bg-[var(--chip-bg)] p-3 text-[var(--muted)] shadow-card transition hover:bg-[var(--accent-soft)]"
                 >

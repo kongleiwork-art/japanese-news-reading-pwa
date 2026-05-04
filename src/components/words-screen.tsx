@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { BookOpenText, ChevronDown, Search, Sparkles, Trash2 } from "lucide-react";
 
-import { savedGroups } from "@/lib/data";
 import { VocabularyModal } from "@/components/vocabulary-modal";
+import { removeSavedWord, type SavedWord } from "@/lib/learning-store";
+import { useLearningState } from "@/lib/use-learning-state";
 import { cn } from "@/lib/utils";
 
 type WordsScreenProps = {
@@ -13,13 +14,11 @@ type WordsScreenProps = {
 };
 
 export function WordsScreen({ selectedWordId }: WordsScreenProps) {
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    "東京の経済成長率、3年ぶりに回復": true,
-    "日本のAI技術、世界をリード": true,
-    "気候変動と日本の環境政策の行方": true,
-  });
+  const learningState = useLearningState();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const allWords = savedGroups.flatMap((group) => group.items);
+  const allWords = learningState.savedWords;
+  const savedGroups = groupWordsByArticle(allWords);
   const selectedWord = allWords.find((item) => item.id === selectedWordId) ?? null;
 
   return (
@@ -49,16 +48,37 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
       <section id="word-groups" className="space-y-4 px-6 py-4">
         <div className="flex items-center justify-between rounded-[20px] border border-[var(--line-soft)] bg-[rgba(255,249,242,0.72)] px-4 py-3 shadow-card">
           <div>
-            <p className="text-sm font-semibold text-[var(--ink)]">建议今天先复习 2 组</p>
-            <p className="mt-1 text-xs text-[var(--muted)]">优先看最近两天新增的科技与经济词汇</p>
+            <p className="text-sm font-semibold text-[var(--ink)]">
+              {allWords.length > 0 ? `已保存 ${allWords.length} 个新闻词` : "还没有保存单词"}
+            </p>
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              {allWords.length > 0
+                ? "点击词条查看详情，或去复习页进入记忆循环"
+                : "阅读文章时点开词条并保存，它们会出现在这里"}
+            </p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)]">
             <Sparkles className="h-4 w-4" />
           </div>
         </div>
 
+        {savedGroups.length === 0 ? (
+          <div className="rounded-[24px] border border-[var(--line-soft)] bg-[var(--panel)] px-5 py-8 text-center shadow-card">
+            <p className="font-serif-jp text-[24px] font-bold text-[var(--ink)]">从一篇新闻开始</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+              打开文章，点击带下划线的词，再按保存按钮，就能建立自己的新闻单词本。
+            </p>
+            <Link
+              href="/"
+              className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-card"
+            >
+              去读文章
+            </Link>
+          </div>
+        ) : null}
+
         {savedGroups.map((group) => {
-          const open = openGroups[group.articleTitle];
+          const open = openGroups[group.articleTitle] ?? true;
 
           return (
             <div
@@ -77,7 +97,7 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
               >
                 <div className="flex min-w-0 flex-1 items-start gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] text-sm font-medium leading-none text-[var(--muted)]">
-                    {group.countLabel}
+                    {group.items.length}词
                   </span>
                   <span className="line-clamp-1 min-w-0 pt-1 font-serif-jp text-[19px] font-semibold leading-7 text-[var(--ink)]">
                     {group.articleTitle}
@@ -122,6 +142,7 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
                         <button
                           type="button"
                           aria-label={`删除${item.surface}`}
+                          onClick={() => removeSavedWord(item.id)}
                           className="ml-auto mt-3 block text-[var(--muted-soft)]"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -143,4 +164,20 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
       />
     </div>
   );
+}
+
+function groupWordsByArticle(words: SavedWord[]) {
+  const groups = new Map<string, { articleTitle: string; items: SavedWord[] }>();
+
+  for (const word of words) {
+    const group = groups.get(word.articleId) ?? {
+      articleTitle: word.articleTitle,
+      items: [],
+    };
+
+    group.items.push(word);
+    groups.set(word.articleId, group);
+  }
+
+  return [...groups.values()];
 }

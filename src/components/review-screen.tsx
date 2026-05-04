@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Brain, CheckCircle2, Eye, HelpCircle, XCircle } from "lucide-react";
 
 import { VocabularyModal } from "@/components/vocabulary-modal";
-import { reviewQueue } from "@/lib/data";
+import {
+  buildReviewQueue,
+  getLearningStats,
+  recordReviewResult,
+  type ReviewRating,
+} from "@/lib/learning-store";
+import { useLearningState } from "@/lib/use-learning-state";
 import { cn } from "@/lib/utils";
 
 type ReviewScreenProps = {
@@ -34,10 +41,51 @@ function buildReviewHref({
 }
 
 export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
-  const current = reviewQueue[0];
-  const flipped = side === "back";
-  const selectedWord =
-    reviewQueue.find((item) => item.word.id === selectedWordId)?.word ?? null;
+  const learningState = useLearningState();
+  const [completedWordIds, setCompletedWordIds] = useState<Set<string>>(() => new Set());
+  const fullQueue = buildReviewQueue(learningState);
+  const queue = fullQueue.filter((word) => !completedWordIds.has(word.id));
+  const stats = getLearningStats(learningState);
+  const current = queue[0] ?? null;
+  const [flipped, setFlipped] = useState(side === "back");
+  const selectedWord = fullQueue.find((item) => item.id === selectedWordId) ?? null;
+
+  if (!current) {
+    const hasSavedWords = fullQueue.length > 0;
+
+    return (
+      <div className="pb-8">
+        <header className="px-6 pb-4 pt-5">
+          <p className="section-label">SMART REVIEW</p>
+          <h1 className="mt-2 font-serif-jp text-[32px] font-bold">复习</h1>
+        </header>
+        <section className="px-6 pt-6">
+          <div className="rounded-[28px] border border-[var(--line-soft)] bg-[var(--panel)] px-5 py-9 text-center shadow-card">
+            <p className="font-serif-jp text-[26px] font-bold text-[var(--ink)]">
+              {hasSavedWords ? "这一轮完成了" : "复习队列还空着"}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+              {hasSavedWords
+                ? "刚刚评分的词已经安排好下次复习，刷新后状态也会保留。"
+                : "先在文章里保存几个单词，系统会按时间把它们放进复习队列。"}
+            </p>
+            <Link
+              href={hasSavedWords ? "/words" : "/"}
+              className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-card"
+            >
+              {hasSavedWords ? "查看单词本" : "去读文章"}
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const handleRating = (rating: ReviewRating) => {
+    recordReviewResult(current.id, rating);
+    setCompletedWordIds((ids) => new Set(ids).add(current.id));
+    setFlipped(false);
+  };
 
   return (
     <div className="pb-8">
@@ -48,10 +96,10 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <p className="section-label">SMART REVIEW</p>
               <h1 className="mt-2 font-serif-jp text-[32px] font-bold">复习</h1>
             </div>
-            <span className="text-lg text-[var(--muted)]">1 / {reviewQueue.length}</span>
+            <span className="text-lg text-[var(--muted)]">1 / {queue.length}</span>
           </div>
           <div className="flex items-center gap-3 text-[var(--muted)]">
-            <span>今日 8 词</span>
+            <span>今日 {stats.dueReviewCount} 词</span>
             <span className="rounded-full bg-[#f4ead7] px-3 py-1 text-[var(--accent)]">
               连续 7 天
             </span>
@@ -67,7 +115,11 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
           点击卡片查看释义，再按记忆程度安排下次复习。
         </p>
 
-        <Link href={buildReviewHref({ nextSide: flipped ? "front" : "back" })} className="mt-6 block">
+        <button
+          type="button"
+          onClick={() => setFlipped((value) => !value)}
+          className="mt-6 block w-full text-left"
+        >
           <div
             className={cn(
               "relative min-h-[252px] overflow-hidden rounded-[32px] transition duration-500",
@@ -91,18 +143,18 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                     <p className="mt-2 text-base text-white/80">再点一次卡片可回到正面</p>
                   </div>
                   <div className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-sm font-semibold text-white">
-                    {current.word.level}
+                    {current.level}
                   </div>
                 </div>
 
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <p className="text-base text-white/72">读法</p>
                   <h2 className="mt-2 font-serif-jp text-[42px] font-bold">
-                    {current.word.reading}
+                    {current.reading}
                   </h2>
                   <p className="mt-5 text-base text-white/72">释义</p>
                   <div className="mt-2 space-y-1 font-serif-jp text-[24px] font-bold leading-tight">
-                    {current.word.meanings.map((meaning) => (
+                    {current.meanings.map((meaning) => (
                       <p key={meaning}>{meaning}</p>
                     ))}
                   </div>
@@ -118,20 +170,20 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                     <p className="mt-2 text-base text-[var(--muted)]">轻点翻面查看释义</p>
                   </div>
                   <div className="rounded-full bg-[#f2e0b7] px-3 py-1 text-sm font-semibold text-[#8f5b13]">
-                    {current.word.level}
+                    {current.level}
                   </div>
                 </div>
 
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <p className="text-base text-[var(--muted)]">单词</p>
                   <h2 className="mt-5 font-serif-jp text-[54px] font-bold leading-none">
-                    {current.word.surface}
+                    {current.surface}
                   </h2>
                 </div>
               </div>
             )}
           </div>
-        </Link>
+        </button>
 
         {flipped ? (
           <>
@@ -147,7 +199,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <Link
                 href={buildReviewHref({
                   nextSide: "back",
-                  selectedWordId: current.word.id,
+                  selectedWordId: current.id,
                 })}
                 className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-2 text-sm font-medium text-[var(--accent)] shadow-card"
               >
@@ -156,29 +208,43 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               </Link>
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-3">
-              <Link
-                href="/review"
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleRating("again")}
                 className="group rounded-[24px] bg-[linear-gradient(180deg,#d85641_0%,#c84533_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(179,62,42,0.22)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/14">
                   <XCircle className="h-5 w-5" />
                 </div>
                 <div className="mt-3 text-[15px] font-semibold">不会</div>
-                <div className="mt-1 text-[13px] text-white/82">1 天后</div>
-              </Link>
-              <Link
-                href="/review"
+                <div className="mt-1 text-[13px] text-white/82">10 分钟后</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRating("hard")}
                 className="group rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(244,234,215,0.9)] text-[var(--muted)]">
                   <HelpCircle className="h-5 w-5" />
                 </div>
                 <div className="mt-3 text-[15px] font-semibold">有印象</div>
+                <div className="mt-1 text-[13px] text-[var(--muted)]">1 天后</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRating("good")}
+                className="group rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
+              >
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(244,234,215,0.9)] text-[var(--muted)]">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div className="mt-3 text-[15px] font-semibold">记得</div>
                 <div className="mt-1 text-[13px] text-[var(--muted)]">3 天后</div>
-              </Link>
-              <Link
-                href="/review"
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRating("easy")}
                 className="group rounded-[24px] bg-[linear-gradient(180deg,#b36a1d_0%,#9a5319_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(122,73,22,0.24)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/14">
@@ -186,7 +252,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                 </div>
                 <div className="mt-3 text-[15px] font-semibold">掌握了</div>
                 <div className="mt-1 text-[13px] text-white/82">7 天后</div>
-              </Link>
+              </button>
             </div>
 
             <div className="mt-4 flex items-center gap-2 rounded-[18px] border border-[var(--line-soft)] bg-[rgba(246,238,227,0.92)] px-4 py-3 text-sm text-[var(--muted)] shadow-card">
@@ -197,7 +263,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
         ) : null}
 
         <div className="mt-6 rounded-[18px] border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-3 text-sm text-[var(--muted)] shadow-card">
-          来源：{current.source}
+          来源：来自《{current.articleTitle}》
         </div>
       </section>
 

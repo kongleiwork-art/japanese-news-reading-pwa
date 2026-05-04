@@ -224,8 +224,13 @@ export function extractNewsWebSummary(html: string) {
 }
 
 export function extractNewsWebContent(html: string, summary: string) {
-  const paragraphs = Array.from(html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
-    .map((match) => normalizeWhitespace(match[1]))
+  const bodyMatch = html.match(
+    /<div[^>]+class="[^"]*\barticle-body\b[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<div[^>]+class="article-footer\b/i,
+  );
+  const bodyHtml = bodyMatch?.[1] ?? html;
+  const minimumParagraphLength = bodyMatch ? 12 : 40;
+  const paragraphs = Array.from(bodyHtml.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi))
+    .flatMap((match) => normalizeNewsWebParagraph(match[1]))
     .filter((paragraph) => {
       if (!paragraph) {
         return false;
@@ -235,16 +240,22 @@ export function extractNewsWebContent(html: string, summary: string) {
         return false;
       }
 
-      return paragraph.length >= 40;
+      return paragraph.length >= minimumParagraphLength;
     });
 
-  const mainParagraph = paragraphs[0];
-  if (mainParagraph) {
-    return splitJapaneseParagraphs(mainParagraph);
+  if (paragraphs.length > 0) {
+    return paragraphs.flatMap((paragraph) => splitJapaneseParagraphs(paragraph));
   }
 
   return splitJapaneseParagraphs(summary)
     .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+function normalizeNewsWebParagraph(html: string) {
+  return normalizeWhitespace(html.replace(/<br\s*\/?>/gi, "\n"))
+    .split(/\n+/)
+    .map((line) => line.trim())
     .filter(Boolean);
 }
 
