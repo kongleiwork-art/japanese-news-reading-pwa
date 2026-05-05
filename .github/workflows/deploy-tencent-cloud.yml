@@ -70,8 +70,9 @@ jobs:
           BRANCH="${GITHUB_REF_NAME:-main}"
 
           ssh -p "$SSH_PORT" -i ~/.ssh/tencent_cloud_key "$TENCENT_USER@$TENCENT_HOST" \
-            "APP_DIR='$APP_DIR' REPO_URL='$REPO_URL' BRANCH='$BRANCH' bash -s" <<'REMOTE'
+            "APP_DIR='$APP_DIR' REPO_URL='$REPO_URL' BRANCH='$BRANCH' bash -s" 2>&1 <<'REMOTE' | tee remote-deploy.log
           set -euo pipefail
+          set -x
 
           if [ ! -d "$APP_DIR/.git" ]; then
             mkdir -p "$APP_DIR"
@@ -86,3 +87,12 @@ jobs:
           pm2 startOrReload ecosystem.config.cjs --env production
           pm2 save
           REMOTE
+        shell: bash
+
+      - name: Upload deployment diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-diagnostics
+          path: remote-deploy.log
+          if-no-files-found: ignore
