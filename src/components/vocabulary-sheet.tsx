@@ -24,7 +24,7 @@ export function VocabularySheet({ word, onClose }: VocabularySheetProps) {
         <div className="mt-4 flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-serif-jp text-[26px] font-bold text-[var(--ink)]">
+              <h3 lang="ja" className="font-serif-jp text-[26px] font-bold text-[var(--ink)]">
                 {word?.surface}
               </h3>
               <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
@@ -34,7 +34,9 @@ export function VocabularySheet({ word, onClose }: VocabularySheetProps) {
                 {word?.partOfSpeech}
               </span>
             </div>
-            <p className="mt-2 text-[26px] text-[var(--accent)]">{word?.reading}</p>
+            <p lang="ja" className="mt-2 text-[26px] text-[var(--accent)]">
+              {word?.reading}
+            </p>
             <p className="mt-1 text-lg text-[var(--muted)]">{word?.romaji}</p>
           </div>
 
@@ -79,8 +81,12 @@ export function VocabularySheet({ word, onClose }: VocabularySheetProps) {
                 key={example.japanese}
                 className="rounded-[18px] border border-[var(--line-soft)] bg-[var(--surface)] px-4 py-4"
               >
-                <p className="text-lg text-[var(--ink)]">{example.japanese}</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">{example.kana}</p>
+                <p lang="ja" className="text-lg text-[var(--ink)]">
+                  {example.japanese}
+                </p>
+                <p lang="ja" className="mt-1 text-sm text-[var(--muted)]">
+                  {example.kana}
+                </p>
                 <p className="mt-2 text-base text-[var(--muted)]">{example.chinese}</p>
               </div>
             ))}

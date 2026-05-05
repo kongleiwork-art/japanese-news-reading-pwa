@@ -18,8 +18,10 @@
 }
 
 @theme inline {
-  --font-serif-jp: "Baskerville", "Palatino Linotype", "Source Han Serif SC", "Songti SC", "STSong", "Noto Serif SC", "Noto Serif JP", "Yu Mincho", serif;
-  --font-sans-jp: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", "Noto Sans JP", "Segoe UI", sans-serif;
+  --font-serif-ui: "Songti SC", "STSong", "Source Han Serif SC", "Noto Serif SC", "PingFang SC", serif;
+  --font-serif-jp: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Source Han Serif JP", serif;
+  --font-sans-ui: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC", "Segoe UI", sans-serif;
+  --font-sans-jp: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Source Han Sans JP", sans-serif;
 }
 
 html {
@@ -34,10 +36,23 @@ body {
     radial-gradient(circle at bottom, rgba(210, 188, 158, 0.16), transparent 28%),
     linear-gradient(180deg, #eee5d7 0%, #f7f2e8 22%, #f3ecdf 100%);
   color: var(--ink);
-  font-family: var(--font-sans-jp);
+  font-family: var(--font-sans-ui);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif-jp:lang(zh-CN),
+.font-serif-jp:lang(zh-Hans) {
+  font-family: var(--font-serif-ui);
+}
+
+:lang(ja) {
+  font-family: var(--font-sans-jp);
+}
+
+.font-serif-jp:lang(ja) {
+  font-family: var(--font-serif-jp);
 }
 
 * {

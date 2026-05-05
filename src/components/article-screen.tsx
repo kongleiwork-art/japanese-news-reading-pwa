@@ -42,7 +42,10 @@ export function ArticleScreen({
         >
           <ArrowLeft className="h-5 w-5 text-[var(--muted)]" />
         </Link>
-        <h1 className="line-clamp-1 flex-1 pr-1 font-serif-jp text-[17px] font-semibold leading-6">
+        <h1
+          lang="ja"
+          className="line-clamp-1 flex-1 pr-1 font-serif-jp text-[17px] font-semibold leading-6"
+        >
           {article.title}
         </h1>
         <Link
@@ -91,7 +94,10 @@ export function ArticleScreen({
             </span>
           </div>
 
-          <h2 className="mt-4 font-serif-jp text-[31px] font-bold leading-[1.28] tracking-tight text-[var(--ink)]">
+          <h2
+            lang="ja"
+            className="mt-4 font-serif-jp text-[31px] font-bold leading-[1.28] tracking-tight text-[var(--ink)]"
+          >
             {article.title}
           </h2>
 
@@ -148,7 +154,7 @@ export function ArticleScreen({
             )}
           >
             {article.content.map((text, index) => (
-              <p key={index}>
+              <p key={index} lang="ja">
                 {segmentTextWithVocabulary(text, article.savedWords).map((part, partIndex) =>
                   part.type === "text" ? (
                     <span key={`${index}-${partIndex}`}>{part.value}</span>
@@ -210,7 +216,9 @@ export function ArticleScreen({
                       : "border-[var(--line-soft)] bg-[var(--surface)] text-[var(--ink)]",
                   )}
                 >
-                  <div className="font-serif-jp text-[20px] font-bold">{word.surface}</div>
+                  <div lang="ja" className="font-serif-jp text-[20px] font-bold">
+                    {word.surface}
+                  </div>
                   <div
                     className={cn(
                       "mt-1 text-xs",

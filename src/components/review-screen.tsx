@@ -149,7 +149,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
 
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <p className="text-base text-white/72">读法</p>
-                  <h2 className="mt-2 font-serif-jp text-[42px] font-bold">
+                  <h2 lang="ja" className="mt-2 font-serif-jp text-[42px] font-bold">
                     {current.reading}
                   </h2>
                   <p className="mt-5 text-base text-white/72">释义</p>
@@ -176,7 +176,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
 
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
                   <p className="text-base text-[var(--muted)]">单词</p>
-                  <h2 className="mt-5 font-serif-jp text-[54px] font-bold leading-none">
+                  <h2 lang="ja" className="mt-5 font-serif-jp text-[54px] font-bold leading-none">
                     {current.surface}
                   </h2>
                 </div>

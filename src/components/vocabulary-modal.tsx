@@ -52,7 +52,7 @@ export function VocabularyModal({
           <div className="mt-4 flex items-start justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-serif-jp text-[26px] font-bold text-[var(--ink)]">
+                <h3 lang="ja" className="font-serif-jp text-[26px] font-bold text-[var(--ink)]">
                   {word.surface}
                 </h3>
                 <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-xs font-semibold text-white">
@@ -62,7 +62,9 @@ export function VocabularyModal({
                   {word.partOfSpeech}
                 </span>
               </div>
-              <p className="mt-2 text-[26px] text-[var(--accent)]">{word.reading}</p>
+              <p lang="ja" className="mt-2 text-[26px] text-[var(--accent)]">
+                {word.reading}
+              </p>
               <p className="mt-1 text-lg text-[var(--muted)]">{word.romaji}</p>
               <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
                 建议先看释义，再结合例句理解它在新闻语境里的真实用法。
@@ -144,8 +146,12 @@ export function VocabularyModal({
                   key={example.japanese}
                   className="rounded-[20px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#f8f1e6_0%,#f5edde_100%)] px-4 py-4 shadow-[0_6px_16px_rgba(111,77,39,0.06)]"
                 >
-                  <p className="text-lg text-[var(--ink)]">{example.japanese}</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{example.kana}</p>
+                  <p lang="ja" className="text-lg text-[var(--ink)]">
+                    {example.japanese}
+                  </p>
+                  <p lang="ja" className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                    {example.kana}
+                  </p>
                   <p className="mt-3 border-t border-[var(--line-soft)] pt-3 text-base leading-7 text-[var(--muted)]">
                     {example.chinese}
                   </p>

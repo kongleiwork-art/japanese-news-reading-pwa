@@ -195,11 +195,14 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
                   <span className="min-w-0 truncate">{article.source}</span>
                 </div>
 
-                <h2 className="mt-3 line-clamp-3 font-serif-jp text-[20px] font-bold leading-[1.38] text-[var(--ink)]">
+                <h2
+                  lang="ja"
+                  className="mt-3 line-clamp-3 font-serif-jp text-[20px] font-bold leading-[1.38] text-[var(--ink)]"
+                >
                   {article.title}
                 </h2>
 
-                <p className="mt-2 line-clamp-2 text-[14px] leading-6 text-[var(--muted)]">
+                <p lang="ja" className="mt-2 line-clamp-2 text-[14px] leading-6 text-[var(--muted)]">
                   {article.summary}
                 </p>
 

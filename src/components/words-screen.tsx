@@ -99,7 +99,10 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] text-sm font-medium leading-none text-[var(--muted)]">
                     {group.items.length}词
                   </span>
-                  <span className="line-clamp-1 min-w-0 pt-1 font-serif-jp text-[19px] font-semibold leading-7 text-[var(--ink)]">
+                  <span
+                    lang="ja"
+                    className="line-clamp-1 min-w-0 pt-1 font-serif-jp text-[19px] font-semibold leading-7 text-[var(--ink)]"
+                  >
                     {group.articleTitle}
                   </span>
                 </div>
@@ -123,14 +126,19 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
                     >
                       <Link href={`/words?word=${item.id}`} className="min-w-0 flex-1 text-left">
                         <div className="flex items-center gap-2">
-                          <h2 className="font-serif-jp text-[28px] font-bold text-[var(--ink)]">
+                          <h2
+                            lang="ja"
+                            className="font-serif-jp text-[28px] font-bold text-[var(--ink)]"
+                          >
                             {item.surface}
                           </h2>
                           <span className="inline-flex h-6 items-center rounded-full bg-[#cf9827] px-2 py-0.5 text-xs font-semibold text-white">
                             {item.level}
                           </span>
                         </div>
-                        <p className="mt-1.5 text-base text-[var(--accent)]">{item.reading}</p>
+                        <p lang="ja" className="mt-1.5 text-base text-[var(--accent)]">
+                          {item.reading}
+                        </p>
                         <p className="mt-1 text-sm text-[var(--muted)]">
                           {item.meanings.join(" / ")}
                         </p>
