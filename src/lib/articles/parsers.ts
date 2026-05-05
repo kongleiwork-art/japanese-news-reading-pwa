@@ -170,8 +170,13 @@ function extractEasyContent(html: string, summary: string) {
 }
 
 export function parseLatestArticleLinks(html: string) {
-  const links = Array.from(html.matchAll(/href="(\/articles\/-\/\d+\?display=1)"/gi))
-    .map((match) => `https://newsdig.tbs.co.jp${match[1]}`)
+  const links = Array.from(
+    html.matchAll(/href="(\/articles\/-\/\d+(?:\?display=1)?)"/gi),
+  )
+    .map((match) => {
+      const path = match[1];
+      return `https://newsdig.tbs.co.jp${path.includes("?") ? path : `${path}?display=1`}`;
+    })
     .filter((link) => isOriginalArticleUrl(link));
 
   return dedupe(links);

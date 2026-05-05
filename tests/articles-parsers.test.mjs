@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   extractEasyArticleData,
+  parseLatestArticleLinks,
   stripRubyAnnotationTags,
 } from "../src/lib/articles/parsers.ts";
 
@@ -44,4 +45,17 @@ test("ruby helper removes rt and rp tags before visible text is normalized", () 
     stripRubyAnnotationTags("<ruby>日本<rp>（</rp><rt>にほん</rt><rp>）</rp></ruby>"),
     "日本",
   );
+});
+
+test("TBS latest parser accepts article links with and without display query", () => {
+  const links = parseLatestArticleLinks(`
+    <a href="/articles/-/2642875">Article A</a>
+    <a href="/articles/-/2643086?display=1">Article B</a>
+    <a href="/articles/-/2642875">Duplicate</a>
+  `);
+
+  assert.deepEqual(links, [
+    "https://newsdig.tbs.co.jp/articles/-/2642875?display=1",
+    "https://newsdig.tbs.co.jp/articles/-/2643086?display=1",
+  ]);
 });
