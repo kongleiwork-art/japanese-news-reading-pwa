@@ -74,22 +74,39 @@ jobs:
           set -euo pipefail
           set -x
 
+          retry() {
+            local attempt=1
+            local max_attempts=5
+            local delay=10
+
+            until "$@"; do
+              if [ "$attempt" -ge "$max_attempts" ]; then
+                return 1
+              fi
+
+              echo "Command failed, retrying in ${delay}s: $*"
+              sleep "$delay"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+
           LOCK_NAME="$(basename "$APP_DIR" | tr -c '[:alnum:]_.-' '_')"
           exec 9>"/tmp/$LOCK_NAME.deploy.lock"
           flock -w 300 9
 
           if [ ! -d "$APP_DIR/.git" ]; then
             mkdir -p "$APP_DIR"
-            git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
+            retry git -c http.version=HTTP/1.1 clone --depth=1 --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
           fi
 
           cd "$APP_DIR"
           find .git -name "*.lock" -type f -mmin +5 -print -delete || true
           git status --short || true
           git rev-parse --short HEAD || true
-          git fetch origin "$BRANCH"
-          git reset --hard "origin/$BRANCH"
-          npm ci
+          retry git -c http.version=HTTP/1.1 fetch --prune --depth=1 origin "$BRANCH"
+          git reset --hard FETCH_HEAD
+          retry npm ci
           npm run build
           pm2 startOrReload ecosystem.config.cjs --env production
           pm2 save
