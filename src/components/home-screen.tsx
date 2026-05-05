@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Bell, Clock3, Search, Sparkles, TrendingUp } from "lucide-react";
+import { Bell, Clock3, Search } from "lucide-react";
 
 import { buildArticleImageStyle } from "@/components/article-image-style";
+import { TodayReviewCard } from "@/components/today-review-card";
 import {
   articleCategories,
   type ArticleCategory,
@@ -16,24 +17,15 @@ const zh = {
   appName: "\u8f7b\u8bfb\u65e5\u8bed",
   subtitle: "\u4ece\u65b0\u95fb\u8fdb\u5165\u771f\u5b9e\u65e5\u8bed",
   searchPlaceholder: "\u641c\u7d22\u65b0\u95fb\u3001\u5355\u8bcd\u6216\u4e3b\u9898",
-  reviewCta: "\u53bb\u590d\u4e60",
-  streakNote: "\u4fdd\u6301 7 \u5929\u8fde\u7eed\u5b66\u4e60\uff0c\u8bb0\u5fc6\u6548\u679c\u66f4\u7a33",
   minutes: "\u5206\u949f",
 } as const;
 
-const channelConfig: Record<
-  ArticleChannel,
-  { label: string; headline: string; source: string }
-> = {
+const channelConfig: Record<ArticleChannel, { label: string }> = {
   easy: {
     label: "\u7b80\u5355\u65e5\u8bed",
-    headline: "1 \u4e2a\u5355\u8bcd\u7b49\u5f85\u590d\u4e60",
-    source: "\u4eca\u5929\u5df2\u590d\u4e60 8 \u4e2a\uff0c\u5df2\u4fdd\u5b58 5 \u4e2a\u5355\u8bcd",
   },
   original: {
     label: "\u5b9e\u65f6\u65b0\u95fb",
-    headline: "2 \u4e2a\u65b0\u95fb\u8bcd\u7b49\u5f85\u590d\u4e60",
-    source: "\u4eca\u5929\u5df2\u590d\u4e60 8 \u4e2a\uff0c\u5df2\u4fdd\u5b58 5 \u4e2a\u5355\u8bcd",
   },
 };
 
@@ -66,7 +58,6 @@ function buildHomeHref(channel: ArticleChannel, category?: ArticleCategory) {
 }
 
 export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
-  const current = channelConfig[channel];
   const filtered = articles.filter((article) => {
     if (article.channel !== channel) return false;
     if (category === allCategory) return true;
@@ -146,33 +137,7 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
       </section>
 
       <section className="px-6 py-4">
-        <div className="overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#9a5319_0%,#7f4210_100%)] px-4 py-4 text-white shadow-card">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-white/85">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-xs font-semibold tracking-[0.16em]">TODAY REVIEW</span>
-              </div>
-              <p className="mt-3 text-lg font-semibold">{current.headline}</p>
-              <p className="mt-2 text-sm text-white/80">{current.source}</p>
-            </div>
-            <Link
-              href="/review"
-              aria-label={zh.reviewCta}
-              className="inline-flex h-11 min-w-[88px] shrink-0 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold text-[#9a5319] shadow-[0_8px_18px_rgba(35,21,10,0.18)]"
-              style={{ color: "#9a5319" }}
-            >
-              <span className="block leading-none" style={{ color: "#9a5319" }}>
-                {zh.reviewCta}
-              </span>
-            </Link>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2 text-xs text-white/78">
-            <TrendingUp className="h-3.5 w-3.5" />
-            <span>{zh.streakNote}</span>
-          </div>
-        </div>
+        <TodayReviewCard />
 
         <div className="mt-4 space-y-3.5">
           {filtered.map((article) => (
