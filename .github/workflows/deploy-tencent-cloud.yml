@@ -96,3 +96,13 @@ jobs:
           name: deploy-diagnostics
           path: remote-deploy.log
           if-no-files-found: ignore
+
+      - name: Summarize deployment diagnostics
+        if: failure()
+        run: |
+          {
+            echo "## Remote deployment log"
+            echo '```text'
+            tail -n 120 remote-deploy.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
