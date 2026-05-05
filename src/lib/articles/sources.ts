@@ -175,6 +175,7 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
       entries.length > 0 ? await getEasyAuthorizedCookieHeader(entries[0].loc) : "";
 
     let failedItems = 0;
+    const fallbackArticles: NormalizedArticle[] = [];
     const articles = await Promise.all(
       entries.map(async (entry) => {
         try {
@@ -185,35 +186,25 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
           const html = await fetchText(entry.loc, { cookie: authorizedCookieHeader });
           const { title, summary, content, publishedAtIso, imageUrl, fullContent } =
             extractEasyArticleData(html, entry.lastmod);
+          const article = buildEasyNormalizedArticle({
+            articleUrl: entry.loc,
+            title,
+            summary,
+            content,
+            publishedAtIso,
+            imageUrl,
+          });
 
           if (!fullContent) {
             throw new Error("NHK EASY returned truncated fallback content");
           }
 
-          const category = guessCategoryFromText([title, summary, content.join(" ")].join(" "));
-          return buildNormalizedArticle({
-            id: entry.loc.match(/\/(ne\d+)\/\1\.html$/i)?.[1] ?? entry.loc,
-            channel: "easy",
-            title,
-            source: "NHK EASY",
-            category,
-            summary,
-            publishedAtIso,
-            image: imageUrl
-              ? {
-                  type: "remote",
-                  value: imageUrl,
-                  alt: title,
-                }
-              : {
-                  type: "gradient",
-                  value: buildImageStyle(title),
-                  alt: `${title} cover`,
-                },
-            content,
-            tagLabel: "简单日语",
-          });
+          return article;
         } catch {
+          const fallbackArticle = await loadEasyFallbackArticle(entry.loc, entry.lastmod);
+          if (fallbackArticle) {
+            fallbackArticles.push(fallbackArticle);
+          }
           failedItems += 1;
           return null;
         }
@@ -225,6 +216,23 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
     );
 
     if (normalizedArticles.length === 0) {
+      const cachedArticles = loadSourceArticlesFromCache("easy");
+      if (cachedArticles.length > 0) {
+        return {
+          articles: cachedArticles,
+          failedItems,
+          error: "NHK EASY returned no complete articles",
+        };
+      }
+
+      if (fallbackArticles.length > 0) {
+        return {
+          articles: fallbackArticles,
+          failedItems,
+          error: "NHK EASY returned only truncated bootstrap content",
+        };
+      }
+
       throw new Error("NHK EASY returned no complete articles");
     }
 
@@ -255,6 +263,63 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
     }
 
     throw error;
+  }
+}
+
+function buildEasyNormalizedArticle(input: {
+  articleUrl: string;
+  title: string;
+  summary: string;
+  content: string[];
+  publishedAtIso: string;
+  imageUrl: string;
+}) {
+  const category = guessCategoryFromText(
+    [input.title, input.summary, input.content.join(" ")].join(" "),
+  );
+
+  return buildNormalizedArticle({
+    id: input.articleUrl.match(/\/(ne\d+)\/\1\.html$/i)?.[1] ?? input.articleUrl,
+    channel: "easy",
+    title: input.title,
+    source: "NHK EASY",
+    category,
+    summary: input.summary,
+    publishedAtIso: input.publishedAtIso,
+    image: input.imageUrl
+      ? {
+          type: "remote",
+          value: input.imageUrl,
+          alt: input.title,
+        }
+      : {
+          type: "gradient",
+          value: buildImageStyle(input.title),
+          alt: `${input.title} cover`,
+        },
+    content: input.content,
+    tagLabel: "简单日语",
+  });
+}
+
+async function loadEasyFallbackArticle(articleUrl: string, fallbackPublishedAt?: string) {
+  try {
+    const html = await fetchText(articleUrl);
+    const { title, summary, content, publishedAtIso, imageUrl } = extractEasyArticleData(
+      html,
+      fallbackPublishedAt,
+    );
+
+    return buildEasyNormalizedArticle({
+      articleUrl,
+      title,
+      summary,
+      content,
+      publishedAtIso,
+      imageUrl,
+    });
+  } catch {
+    return null;
   }
 }
 
