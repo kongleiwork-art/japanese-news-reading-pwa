@@ -3,6 +3,9 @@ import test from "node:test";
 
 import {
   extractEasyArticleData,
+  extractNewsWebOriginalArticleData,
+  extractNewsWebOriginalArticleId,
+  isNewsWebOriginalArticleUrl,
   parseLatestArticleLinks,
   stripRubyAnnotationTags,
 } from "../src/lib/articles/parsers.ts";
@@ -58,4 +61,39 @@ test("TBS latest parser accepts article links with and without display query", (
     "https://newsdig.tbs.co.jp/articles/-/2642875?display=1",
     "https://newsdig.tbs.co.jp/articles/-/2643086?display=1",
   ]);
+});
+
+test("NHK NEWS WEB original helpers read sitemap URLs and full article JSON bodies", () => {
+  const url = "https://news.web.nhk/newsweb/na/na-k10015114921000";
+  const article = extractNewsWebOriginalArticleData(
+    {
+      id: "na-k10015114921000",
+      headline: "ロシア極東「サハリン2」の原油が愛媛到着",
+      description: "愛媛県の製油所に原油が到着しました。",
+      datePublished: "2026-05-05T15:33:25+09:00",
+      image: {
+        medium: {
+          url: "https://example.test/news.jpg",
+        },
+      },
+      genre: ["経済", "国際"],
+      topic: [{ name: "資源・エネルギー" }],
+      articleBody:
+        "愛媛県の製油所に原油が到着しました。\n\nイラン情勢の悪化で代替調達が進んでいます。",
+    },
+    {
+      id: "na-k10015114921000",
+    },
+  );
+
+  assert.equal(isNewsWebOriginalArticleUrl(url), true);
+  assert.equal(extractNewsWebOriginalArticleId(url), "na-k10015114921000");
+  assert.equal(article.id, "na-k10015114921000");
+  assert.equal(article.source, "NHK NEWS WEB");
+  assert.deepEqual(article.content, [
+    "愛媛県の製油所に原油が到着しました。",
+    "イラン情勢の悪化で代替調達が進んでいます。",
+  ]);
+  assert.equal(article.imageUrl, "https://example.test/news.jpg");
+  assert.equal(article.topicLabel, "経済 国際 資源・エネルギー");
 });

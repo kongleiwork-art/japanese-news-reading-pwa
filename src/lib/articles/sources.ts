@@ -4,27 +4,30 @@ import {
   NHK_EASY_AUTHORIZATION_URL,
   NHK_EASY_DEFAULT_AREA,
   NHK_EASY_SITEMAP_URL,
+  NHK_NEWS_WEB_ARTICLE_API_BASE,
+  NHK_NEWS_WEB_ARTICLE_URL_BASE,
+  NHK_NEWS_WEB_SITEMAP_URL,
   ORIGINAL_ARTICLE_LIMIT,
-  TBS_NEWS_DIG_LATEST_URL,
   USER_AGENT,
   type EasyConsentArea,
 } from "./config.ts";
 import {
+  loadArticleFromCache,
+  loadSourceArticlesFromCache,
+  saveArticleToCache,
+  saveSourceArticlesToCache,
+} from "./cache.ts";
+import {
   extractEasyArticleData,
-  extractNewsWebBroadcaster,
-  extractNewsWebContent,
-  extractNewsWebPublishedAt,
-  extractNewsWebSummary,
-  extractNewsWebTitle,
-  extractNewsWebTopicLabel,
+  extractNewsWebOriginalArticleData,
+  extractNewsWebOriginalArticleId,
   isEasyArticleUrl,
-  parseLatestArticleLinks,
+  isNewsWebOriginalArticleUrl,
   parseSitemapEntries,
 } from "./parsers.ts";
 import type { NormalizedArticle } from "./types.ts";
 import {
   buildImageStyle,
-  extractMetaContent,
   fetchText,
   formatPublishedAt,
   getSetCookieHeaders,
@@ -37,6 +40,7 @@ import { chooseVocabularyItems } from "./vocabulary.ts";
 type SourceLoadResult = {
   articles: NormalizedArticle[];
   failedItems: number;
+  error?: string | null;
 };
 
 type CookieCache = {
@@ -50,6 +54,10 @@ let easyAuthorizedCookieCache: CookieCache | null = null;
 
 function now() {
   return Date.now();
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function buildEasyConsentCookieValue(area: EasyConsentArea = NHK_EASY_DEFAULT_AREA) {
@@ -109,7 +117,7 @@ export async function getEasyAuthorizedCookieHeader(redirectUrl: string) {
       return value;
     })
     .catch((error: unknown) => {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = getErrorMessage(error);
       easyAuthorizedCookieCache = {
         expiresAt: now() + 60 * 1000,
         promise: Promise.resolve(""),
@@ -122,6 +130,8 @@ export async function getEasyAuthorizedCookieHeader(redirectUrl: string) {
   easyAuthorizedCookieCache = { expiresAt, promise };
   return promise;
 }
+
+export const getNhkAuthorizedCookieHeader = getEasyAuthorizedCookieHeader;
 
 export function getEasyCookieCacheState() {
   return {
@@ -213,96 +223,129 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
 }
 
 export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
-  const latestPage = await fetchText(TBS_NEWS_DIG_LATEST_URL);
-  const articleUrls = parseLatestArticleLinks(latestPage).slice(0, ORIGINAL_ARTICLE_LIMIT);
+  try {
+    const sitemap = await fetchText(NHK_NEWS_WEB_SITEMAP_URL);
+    const entries = parseSitemapEntries(sitemap)
+      .filter((entry) => isNewsWebOriginalArticleUrl(entry.loc))
+      .slice(0, ORIGINAL_ARTICLE_LIMIT);
+    const authorizedCookieHeader =
+      entries.length > 0 ? await getNhkAuthorizedCookieHeader(entries[0].loc) : "";
 
-  let failedItems = 0;
-  const articles = await Promise.all(
-    articleUrls.map(async (articleUrl) => {
-      try {
-        const html = await fetchText(articleUrl);
-        const title = extractNewsWebTitle(html);
-        const summary = extractNewsWebSummary(html);
-        const content = extractNewsWebContent(html, summary);
-        const topicLabel = extractNewsWebTopicLabel(html);
-        const category = guessCategoryFromText(
-          [title, summary, topicLabel, content.join(" ")].join(" "),
-        );
-        const imageUrl = extractMetaContent(html, "og:image") ?? "";
-        const broadcaster = extractNewsWebBroadcaster(html);
+    let failedItems = 0;
+    const articles = await Promise.all(
+      entries.map(async (entry) => {
+        try {
+          const articleId = extractNewsWebOriginalArticleId(entry.loc);
+          return await loadNewsWebArticleFromApi(articleId, {
+            title: entry.title,
+            publishedAtIso: entry.lastmod,
+            authorizedCookieHeader,
+          });
+        } catch {
+          failedItems += 1;
+          return null;
+        }
+      }),
+    );
 
-        return buildNormalizedArticle({
-          id: articleUrl.match(/\/articles\/-\/(\d+)/i)?.[1] ?? articleUrl,
-          channel: "original",
-          title,
-          source: broadcaster,
-          category,
-          summary: summary || title,
-          publishedAtIso: extractNewsWebPublishedAt(html),
-          image: imageUrl
-            ? {
-                type: "remote",
-                value: imageUrl,
-                alt: title,
-              }
-            : {
-                type: "gradient",
-                value: buildImageStyle(title),
-                alt: `${title} cover`,
-              },
-          content,
-          tagLabel: "实时新闻",
-        });
-      } catch {
-        failedItems += 1;
-        return null;
-      }
-    }),
-  );
+    const normalizedArticles = articles.filter(
+      (article): article is NormalizedArticle => article !== null,
+    );
 
-  return {
-    articles: articles.filter((article): article is NormalizedArticle => article !== null),
-    failedItems,
-  };
+    if (normalizedArticles.length === 0) {
+      throw new Error("NHK NEWS WEB returned no original articles");
+    }
+
+    saveSourceArticlesToCache("original", normalizedArticles);
+
+    return {
+      articles: normalizedArticles,
+      failedItems,
+    };
+  } catch (error: unknown) {
+    const cachedArticles = loadSourceArticlesFromCache("original");
+
+    if (cachedArticles.length > 0) {
+      return {
+        articles: cachedArticles,
+        failedItems: 0,
+        error: getErrorMessage(error),
+      };
+    }
+
+    throw error;
+  }
 }
 
-export async function loadNewsWebArticleById(articleId: string) {
-  if (!/^\d+$/.test(articleId)) {
+async function loadNewsWebArticleFromApi(
+  articleId: string,
+  options?: {
+    title?: string;
+    publishedAtIso?: string;
+    authorizedCookieHeader?: string;
+  },
+) {
+  if (!/^na-k\d+$/i.test(articleId)) {
     return null;
   }
 
-  const articleUrl = `https://newsdig.tbs.co.jp/articles/-/${articleId}?display=1`;
-  const html = await fetchText(articleUrl);
-  const title = extractNewsWebTitle(html);
-  const summary = extractNewsWebSummary(html);
-  const content = extractNewsWebContent(html, summary);
-  const topicLabel = extractNewsWebTopicLabel(html);
-  const category = guessCategoryFromText(
-    [title, summary, topicLabel, content.join(" ")].join(" "),
-  );
-  const imageUrl = extractMetaContent(html, "og:image") ?? "";
-  const broadcaster = extractNewsWebBroadcaster(html);
-
-  return buildNormalizedArticle({
+  const canonicalUrl = `${NHK_NEWS_WEB_ARTICLE_URL_BASE}/${articleId}`;
+  const authorizedCookieHeader =
+    options?.authorizedCookieHeader ?? (await getNhkAuthorizedCookieHeader(canonicalUrl));
+  const jsonText = await fetchText(`${NHK_NEWS_WEB_ARTICLE_API_BASE}/${articleId}.json`, {
+    cookie: authorizedCookieHeader,
+  });
+  const articleData = extractNewsWebOriginalArticleData(JSON.parse(jsonText), {
     id: articleId,
+    title: options?.title,
+    publishedAtIso: options?.publishedAtIso,
+  });
+  const category = guessCategoryFromText(
+    [
+      articleData.title,
+      articleData.summary,
+      articleData.topicLabel,
+      articleData.content.join(" "),
+    ].join(" "),
+  );
+
+  const article = buildNormalizedArticle({
+    id: articleData.id,
     channel: "original",
-    title,
-    source: broadcaster,
+    title: articleData.title,
+    source: articleData.source,
     category,
-    summary: summary || title,
-    publishedAtIso: extractNewsWebPublishedAt(html),
-    image: imageUrl
+    summary: articleData.summary || articleData.title,
+    publishedAtIso: articleData.publishedAtIso,
+    image: articleData.imageUrl
       ? {
           type: "remote",
-          value: imageUrl,
-          alt: title,
+          value: articleData.imageUrl,
+          alt: articleData.title,
         }
       : {
           type: "gradient",
-          value: buildImageStyle(title),
-          alt: `${title} cover`,
+          value: buildImageStyle(articleData.title),
+          alt: `${articleData.title} cover`,
         },
-    content,
-    tagLabel: "实时新闻",
+    content: articleData.content,
+    tagLabel: articleData.topicLabel || "NHK NEWS WEB",
   });
+
+  saveArticleToCache("original", article);
+  return article;
+}
+
+export async function loadNewsWebArticleById(articleId: string) {
+  try {
+    const article = await loadNewsWebArticleFromApi(articleId);
+
+    if (article) {
+      return article;
+    }
+  } catch {
+    // Use the persistent cache below when live NHK requests fail.
+  }
+
+  return loadArticleFromCache("original", articleId);
 }

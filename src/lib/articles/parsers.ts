@@ -37,6 +37,14 @@ export function isOriginalArticleUrl(url: string) {
   return /\/articles\/-\/\d+(?:\?display=1)?$/i.test(url);
 }
 
+export function isNewsWebOriginalArticleUrl(url: string) {
+  return /\/newsweb\/na\/na-k\d+$/i.test(url);
+}
+
+export function extractNewsWebOriginalArticleId(url: string) {
+  return url.match(/\/newsweb\/na\/(na-k\d+)$/i)?.[1] ?? "";
+}
+
 export function stripRubyAnnotationTags(value: string) {
   return value
     .replace(/<rt[^>]*>[\s\S]*?<\/rt>/gi, "")
@@ -180,6 +188,103 @@ export function parseLatestArticleLinks(html: string) {
     .filter((link) => isOriginalArticleUrl(link));
 
   return dedupe(links);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function getString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getNestedString(value: unknown, keys: string[]) {
+  let current = value;
+
+  for (const key of keys) {
+    if (!isRecord(current)) {
+      return "";
+    }
+
+    current = current[key];
+  }
+
+  return getString(current);
+}
+
+function getStringList(value: unknown) {
+  return Array.isArray(value)
+    ? value.map((item) => getString(item)).filter(Boolean)
+    : [];
+}
+
+function getTopicNames(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => (isRecord(item) ? getString(item.name) : ""))
+    .filter(Boolean);
+}
+
+export function extractNewsWebOriginalArticleData(
+  value: unknown,
+  fallback?: {
+    id?: string;
+    title?: string;
+    publishedAtIso?: string;
+  },
+): ParsedArticleData & {
+  id: string;
+  source: string;
+  topicLabel: string;
+} {
+  if (!isRecord(value)) {
+    throw new Error("NHK NEWS WEB article JSON is not an object");
+  }
+
+  const id =
+    getString(value.id) ||
+    getNestedString(value.identifierGroup, ["newsarticleId"]) ||
+    fallback?.id ||
+    "";
+  const title =
+    getString(value.headline) ||
+    getString(value.name) ||
+    getNestedString(value.identifierGroup, ["newsarticleName"]) ||
+    fallback?.title ||
+    "";
+  const articleBody = getString(value.articleBody) || getNestedString(value.mainEntityOfPage, [
+    "articleBody",
+  ]);
+  const content = articleBody
+    .split(/\n{2,}/)
+    .map((paragraph) => normalizeWhitespace(paragraph))
+    .filter(Boolean);
+
+  if (!id || !title || content.length === 0) {
+    throw new Error("NHK NEWS WEB article JSON did not include full article content");
+  }
+
+  const genre = getStringList(value.genre);
+  const topicNames = getTopicNames(value.topic);
+  const summary = normalizeWhitespace(getString(value.description) || getString(value.abstract));
+
+  return {
+    id,
+    title,
+    summary: summary || content[0],
+    content,
+    publishedAtIso:
+      getString(value.datePublished) || getString(value.dateModified) || fallback?.publishedAtIso ||
+      new Date().toISOString(),
+    imageUrl:
+      getNestedString(value.image, ["medium", "url"]) ||
+      getNestedString(value.image, ["icon", "url"]),
+    source: "NHK NEWS WEB",
+    topicLabel: [...genre, ...topicNames].join(" "),
+  };
 }
 
 export function splitJapaneseParagraphs(text: string, sentencesPerParagraph = 2) {

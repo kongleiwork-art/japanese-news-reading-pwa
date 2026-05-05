@@ -3,7 +3,11 @@ import type { ConcreteArticleCategory } from "./types.ts";
 export const NHK_EASY_SITEMAP_URL =
   "https://news.web.nhk/news/easy/sitemap/sitemap.xml";
 export const NHK_EASY_AUTHORIZATION_URL = "https://www.web.nhk/tix/build_authorize";
-export const TBS_NEWS_DIG_LATEST_URL = "https://newsdig.tbs.co.jp/list/latest";
+export const NHK_NEWS_WEB_SITEMAP_URL =
+  "https://news.web.nhk/sitemap/sitemap-news-nationwide-article.xml";
+export const NHK_NEWS_WEB_ARTICLE_API_BASE =
+  "https://api.web.nhk/r8/t/newsarticle/na";
+export const NHK_NEWS_WEB_ARTICLE_URL_BASE = "https://news.web.nhk/newsweb/na";
 
 export const EASY_ARTICLE_LIMIT = 12;
 export const ORIGINAL_ARTICLE_LIMIT = 12;

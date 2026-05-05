@@ -19,6 +19,7 @@ import {
 type SourceLoadResult = {
   articles: NormalizedArticle[];
   failedItems: number;
+  error?: string | null;
 };
 
 type SourceCache = {
@@ -129,6 +130,7 @@ async function getSourceArticles(
         itemCount: result.articles.length,
         failedItems: result.failedItems,
         cacheExpiresAt: expiresAt,
+        error: result.error,
       });
       return result.articles;
     })
@@ -171,7 +173,7 @@ async function getNormalizedArticles(filters?: {
 
 function inferArticleChannel(articleId: string): ArticleChannel | undefined {
   if (/^ne\d+$/i.test(articleId)) return "easy";
-  if (/^\d+$/.test(articleId)) return "original";
+  if (/^na-k\d+$/i.test(articleId) || /^\d+$/.test(articleId)) return "original";
   return undefined;
 }
 
