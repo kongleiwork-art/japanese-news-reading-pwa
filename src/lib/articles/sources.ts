@@ -166,60 +166,96 @@ function buildNormalizedArticle(
 }
 
 export async function loadEasyArticles(): Promise<SourceLoadResult> {
-  const sitemap = await fetchText(NHK_EASY_SITEMAP_URL);
-  const entries = parseSitemapEntries(sitemap)
-    .filter((entry) => isEasyArticleUrl(entry.loc))
-    .slice(0, EASY_ARTICLE_LIMIT);
-  const authorizedCookieHeader =
-    entries.length > 0 ? await getEasyAuthorizedCookieHeader(entries[0].loc) : "";
+  try {
+    const sitemap = await fetchText(NHK_EASY_SITEMAP_URL);
+    const entries = parseSitemapEntries(sitemap)
+      .filter((entry) => isEasyArticleUrl(entry.loc))
+      .slice(0, EASY_ARTICLE_LIMIT);
+    const authorizedCookieHeader =
+      entries.length > 0 ? await getEasyAuthorizedCookieHeader(entries[0].loc) : "";
 
-  let failedItems = 0;
-  const articles = await Promise.all(
-    entries.map(async (entry) => {
-      try {
-        const html = authorizedCookieHeader
-          ? await fetchText(entry.loc, { cookie: authorizedCookieHeader }).catch(() =>
-              fetchText(entry.loc),
-            )
-          : await fetchText(entry.loc);
-        const { title, summary, content, publishedAtIso, imageUrl } = extractEasyArticleData(
-          html,
-          entry.lastmod,
-        );
-        const category = guessCategoryFromText([title, summary, content.join(" ")].join(" "));
-        return buildNormalizedArticle({
-          id: entry.loc.match(/\/(ne\d+)\/\1\.html$/i)?.[1] ?? entry.loc,
-          channel: "easy",
-          title,
-          source: "NHK EASY",
-          category,
-          summary,
-          publishedAtIso,
-          image: imageUrl
-            ? {
-                type: "remote",
-                value: imageUrl,
-                alt: title,
-              }
-            : {
-                type: "gradient",
-                value: buildImageStyle(title),
-                alt: `${title} cover`,
-              },
-          content,
-          tagLabel: "简单日语",
-        });
-      } catch {
-        failedItems += 1;
-        return null;
-      }
-    }),
-  );
+    let failedItems = 0;
+    const articles = await Promise.all(
+      entries.map(async (entry) => {
+        try {
+          if (!authorizedCookieHeader) {
+            throw new Error("NHK EASY anonymous authorization cookie is empty");
+          }
 
-  return {
-    articles: articles.filter((article): article is NormalizedArticle => article !== null),
-    failedItems,
-  };
+          const html = await fetchText(entry.loc, { cookie: authorizedCookieHeader });
+          const { title, summary, content, publishedAtIso, imageUrl, fullContent } =
+            extractEasyArticleData(html, entry.lastmod);
+
+          if (!fullContent) {
+            throw new Error("NHK EASY returned truncated fallback content");
+          }
+
+          const category = guessCategoryFromText([title, summary, content.join(" ")].join(" "));
+          return buildNormalizedArticle({
+            id: entry.loc.match(/\/(ne\d+)\/\1\.html$/i)?.[1] ?? entry.loc,
+            channel: "easy",
+            title,
+            source: "NHK EASY",
+            category,
+            summary,
+            publishedAtIso,
+            image: imageUrl
+              ? {
+                  type: "remote",
+                  value: imageUrl,
+                  alt: title,
+                }
+              : {
+                  type: "gradient",
+                  value: buildImageStyle(title),
+                  alt: `${title} cover`,
+                },
+            content,
+            tagLabel: "简单日语",
+          });
+        } catch {
+          failedItems += 1;
+          return null;
+        }
+      }),
+    );
+
+    const normalizedArticles = articles.filter(
+      (article): article is NormalizedArticle => article !== null,
+    );
+
+    if (normalizedArticles.length === 0) {
+      throw new Error("NHK EASY returned no complete articles");
+    }
+
+    const cachedArticles = loadSourceArticlesFromCache("easy");
+    if (failedItems > 0 && cachedArticles.length > 0) {
+      return {
+        articles: cachedArticles,
+        failedItems,
+        error: `${failedItems} NHK EASY articles returned incomplete live content`,
+      };
+    }
+
+    saveSourceArticlesToCache("easy", normalizedArticles);
+
+    return {
+      articles: normalizedArticles,
+      failedItems,
+    };
+  } catch (error: unknown) {
+    const cachedArticles = loadSourceArticlesFromCache("easy");
+
+    if (cachedArticles.length > 0) {
+      return {
+        articles: cachedArticles,
+        failedItems: 0,
+        error: getErrorMessage(error),
+      };
+    }
+
+    throw error;
+  }
 }
 
 export async function loadNewsWebArticles(): Promise<SourceLoadResult> {

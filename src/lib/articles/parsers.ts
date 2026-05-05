@@ -16,6 +16,7 @@ export type ParsedArticleData = {
   content: string[];
   publishedAtIso: string;
   imageUrl: string;
+  fullContent?: boolean;
 };
 
 export function parseSitemapEntries(xml: string) {
@@ -122,6 +123,7 @@ export function extractEasyArticleData(
       content: classicContent,
       publishedAtIso: parseEasyClassicPublishedAt(html, fallbackPublishedAt),
       imageUrl: extractMetaContent(html, "og:image") ?? "",
+      fullContent: true,
     };
   }
 
@@ -134,6 +136,7 @@ export function extractEasyArticleData(
     content: extractEasyContent(html, summary),
     publishedAtIso: toTokyoDateOnlyIso(fallbackPublishedAt),
     imageUrl: extractMetaContent(html, "og:image") ?? "",
+    fullContent: false,
   };
 }
 

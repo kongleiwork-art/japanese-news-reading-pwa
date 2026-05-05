@@ -41,6 +41,22 @@ test("NHK EASY classic parser extracts title, body, date, and strips ruby", () =
   ]);
   assert.equal(article.publishedAtIso, "2026-04-29T12:34:00+09:00");
   assert.equal(article.imageUrl, "https://example.test/news.jpg");
+  assert.equal(article.fullContent, true);
+});
+
+test("NHK EASY fallback parser marks truncated summary content incomplete", () => {
+  const article = extractEasyArticleData(`
+    <html>
+      <head>
+        <meta property="og:title" content="Fallback article" />
+        <meta name="description" content="警察は、1日午後4時ごろ千葉県習志野市で..." />
+      </head>
+      <body></body>
+    </html>
+  `);
+
+  assert.equal(article.fullContent, false);
+  assert.deepEqual(article.content, ["警察は、1日午後4時ごろ千葉県習志野市で..."]);
 });
 
 test("ruby helper removes rt and rp tags before visible text is normalized", () => {
