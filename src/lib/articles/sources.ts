@@ -329,7 +329,7 @@ async function loadNewsWebArticleFromApi(
           alt: `${articleData.title} cover`,
         },
     content: articleData.content,
-    tagLabel: articleData.topicLabel || "NHK NEWS WEB",
+    tagLabel: "实时新闻",
   });
 
   saveArticleToCache("original", article);

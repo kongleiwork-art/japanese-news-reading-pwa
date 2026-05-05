@@ -84,7 +84,7 @@ export function ArticleScreen({
               {article.category}
             </span>
             <span className="inline-flex h-7 items-center rounded-full bg-[var(--blue)] px-3 text-[12px] font-medium text-white">
-              {article.tagLabel}
+              {article.channel === "original" ? "实时新闻" : article.tagLabel}
             </span>
             <span className="inline-flex h-7 items-center rounded-full border border-[var(--line-soft)] bg-[var(--panel)] px-3 text-[12px]">
               {article.source}
