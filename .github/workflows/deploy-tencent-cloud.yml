@@ -74,8 +74,8 @@ jobs:
           set -euo pipefail
           set -x
 
-          mkdir -p "$(dirname "$APP_DIR")"
-          exec 9>"$APP_DIR.deploy.lock"
+          LOCK_NAME="$(basename "$APP_DIR" | tr -c '[:alnum:]_.-' '_')"
+          exec 9>"/tmp/$LOCK_NAME.deploy.lock"
           flock -w 300 9
 
           if [ ! -d "$APP_DIR/.git" ]; then
