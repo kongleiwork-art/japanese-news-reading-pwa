@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: tencent-cloud-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -74,12 +74,19 @@ jobs:
           set -euo pipefail
           set -x
 
+          mkdir -p "$(dirname "$APP_DIR")"
+          exec 9>"$APP_DIR.deploy.lock"
+          flock -w 300 9
+
           if [ ! -d "$APP_DIR/.git" ]; then
             mkdir -p "$APP_DIR"
             git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
           fi
 
           cd "$APP_DIR"
+          find .git -name "*.lock" -type f -mmin +5 -print -delete || true
+          git status --short || true
+          git rev-parse --short HEAD || true
           git fetch origin "$BRANCH"
           git reset --hard "origin/$BRANCH"
           npm ci
