@@ -1,4 +1,4 @@
-import type { ArticleChannel, ArticleDetail, VocabularyItem } from "@/lib/articles";
+import type { ArticleChannel, ArticleDetail, ArticleImage, VocabularyItem } from "@/lib/articles";
 
 export const STORAGE_KEY = "qingdu-learning-state-v1";
 
@@ -31,8 +31,23 @@ export type ReviewRecord = {
   nextReviewAt: string;
 };
 
+export type SavedArticle = {
+  id: string;
+  channel: ArticleChannel;
+  title: string;
+  source: string;
+  category: ArticleDetail["category"];
+  summary: string;
+  readingMinutes: number;
+  publishedAt: string;
+  image: ArticleImage;
+  imageStyle: string;
+  savedAtIso: string;
+};
+
 export type LearningState = {
   savedArticleIds: string[];
+  savedArticles: SavedArticle[];
   savedWords: SavedWord[];
   readHistory: ReadHistoryItem[];
   reviewRecords: ReviewRecord[];
@@ -46,8 +61,11 @@ export type LearningStats = {
   totalReviewCount: number;
 };
 
+export type ActivityCell = "empty" | "mid" | "dark";
+
 const emptyState: LearningState = {
   savedArticleIds: [],
+  savedArticles: [],
   savedWords: [],
   readHistory: [],
   reviewRecords: [],
@@ -63,6 +81,7 @@ const reviewIntervals: Record<ReviewRating, number> = {
 export function createEmptyLearningState(): LearningState {
   return {
     savedArticleIds: [],
+    savedArticles: [],
     savedWords: [],
     readHistory: [],
     reviewRecords: [],
@@ -108,10 +127,13 @@ export function updateLearningState(updater: (state: LearningState) => LearningS
 }
 
 export function isArticleSaved(state: LearningState, articleId: string) {
-  return state.savedArticleIds.includes(articleId);
+  return (
+    state.savedArticleIds.includes(articleId) ||
+    state.savedArticles.some((article) => article.id === articleId)
+  );
 }
 
-export function toggleSavedArticle(article: ArticleDetail) {
+export function toggleSavedArticle(article: ArticleDetail, now = new Date()) {
   return updateLearningState((state) => {
     const saved = isArticleSaved(state, article.id);
 
@@ -120,8 +142,22 @@ export function toggleSavedArticle(article: ArticleDetail) {
       savedArticleIds: saved
         ? state.savedArticleIds.filter((id) => id !== article.id)
         : [article.id, ...state.savedArticleIds],
+      savedArticles: saved
+        ? state.savedArticles.filter((item) => item.id !== article.id)
+        : [
+            createSavedArticle(article, now),
+            ...state.savedArticles.filter((item) => item.id !== article.id),
+          ],
     };
   });
+}
+
+export function removeSavedArticle(articleId: string) {
+  return updateLearningState((state) => ({
+    ...state,
+    savedArticleIds: state.savedArticleIds.filter((id) => id !== articleId),
+    savedArticles: state.savedArticles.filter((article) => article.id !== articleId),
+  }));
 }
 
 export function recordArticleRead(article: ArticleDetail, now = new Date()) {
@@ -208,13 +244,7 @@ export function buildReviewQueue(state: LearningState, now = new Date()) {
   const nowTime = now.getTime();
   const due = state.savedWords.filter((word) => Date.parse(word.nextReviewAt) <= nowTime);
 
-  if (due.length > 0) {
-    return sortWordsForReview(due);
-  }
-
-  return [...state.savedWords]
-    .sort((left, right) => Date.parse(right.savedAtIso) - Date.parse(left.savedAtIso))
-    .slice(0, 5);
+  return sortWordsForReview(due);
 }
 
 export function recordReviewResult(wordId: string, rating: ReviewRating, now = new Date()) {
@@ -250,12 +280,71 @@ export function getLearningStats(state: LearningState, now = new Date()): Learni
 
   return {
     readArticleCount: state.readHistory.length,
-    savedArticleCount: state.savedArticleIds.length,
+    savedArticleCount: getSavedArticleIds(state).length,
     savedWordCount: state.savedWords.length,
     dueReviewCount: state.savedWords.filter((word) => Date.parse(word.nextReviewAt) <= nowTime)
       .length,
     totalReviewCount: state.reviewRecords.length,
   };
+}
+
+export function getSavedArticleIds(state: LearningState) {
+  return uniqueStrings([
+    ...state.savedArticleIds,
+    ...state.savedArticles.map((article) => article.id),
+  ]);
+}
+
+export function getTodayReviewCount(state: LearningState, now = new Date()) {
+  const todayKey = formatLocalDateKey(now);
+
+  return state.reviewRecords.filter((record) => toLocalDateKey(record.reviewedAt) === todayKey)
+    .length;
+}
+
+export function getLearningActivity(state: LearningState) {
+  const activity = new Map<string, number>();
+
+  state.readHistory.forEach((item) => addLearningActivity(activity, item.readAt));
+  state.savedWords.forEach((word) => addLearningActivity(activity, word.savedAtIso));
+  state.reviewRecords.forEach((record) => addLearningActivity(activity, record.reviewedAt));
+
+  return activity;
+}
+
+export function getCurrentStreak(state: LearningState, now = new Date()) {
+  const activity = getLearningActivity(state);
+  const today = startOfLocalDay(now);
+  const yesterday = addLocalDays(today, -1);
+  const todayKey = formatLocalDateKey(today);
+  const yesterdayKey = formatLocalDateKey(yesterday);
+  const start = activity.has(todayKey) ? today : activity.has(yesterdayKey) ? yesterday : null;
+
+  if (!start) return 0;
+
+  let streak = 0;
+  let cursor = start;
+
+  while (activity.has(formatLocalDateKey(cursor))) {
+    streak += 1;
+    cursor = addLocalDays(cursor, -1);
+  }
+
+  return streak;
+}
+
+export function getRecentActivityCells(state: LearningState, now = new Date()): ActivityCell[] {
+  const activity = getLearningActivity(state);
+  const start = addLocalDays(startOfLocalDay(now), -29);
+
+  return Array.from({ length: 30 }, (_, index) => {
+    const date = addLocalDays(start, index);
+    const count = activity.get(formatLocalDateKey(date)) ?? 0;
+
+    if (count === 0) return "empty";
+    if (count === 1) return "mid";
+    return "dark";
+  });
 }
 
 export function buildSavedWordId(articleId: string, wordId: string) {
@@ -268,9 +357,16 @@ function normalizeLearningState(value: unknown): LearningState {
   }
 
   const input = value as Partial<LearningState>;
+  const savedArticles = Array.isArray(input.savedArticles)
+    ? input.savedArticles.filter(isSavedArticle).filter(uniqueById())
+    : emptyState.savedArticles;
 
   return {
-    savedArticleIds: uniqueStrings(input.savedArticleIds),
+    savedArticleIds: uniqueStrings([
+      ...uniqueStrings(input.savedArticleIds),
+      ...savedArticles.map((article) => article.id),
+    ]),
+    savedArticles,
     savedWords: Array.isArray(input.savedWords)
       ? input.savedWords.filter(isSavedWord).filter(uniqueById())
       : emptyState.savedWords,
@@ -338,6 +434,26 @@ function isSavedWord(value: unknown): value is SavedWord {
   );
 }
 
+function isSavedArticle(value: unknown): value is SavedArticle {
+  if (!value || typeof value !== "object") return false;
+
+  const article = value as Partial<SavedArticle>;
+
+  return (
+    typeof article.id === "string" &&
+    (article.channel === "easy" || article.channel === "original") &&
+    typeof article.title === "string" &&
+    typeof article.source === "string" &&
+    typeof article.category === "string" &&
+    typeof article.summary === "string" &&
+    typeof article.readingMinutes === "number" &&
+    typeof article.publishedAt === "string" &&
+    isArticleImage(article.image) &&
+    typeof article.imageStyle === "string" &&
+    typeof article.savedAtIso === "string"
+  );
+}
+
 function isReadHistoryItem(value: unknown): value is ReadHistoryItem {
   if (!value || typeof value !== "object") return false;
 
@@ -368,6 +484,63 @@ function isReviewRecord(value: unknown): value is ReviewRecord {
   );
 }
 
+function createSavedArticle(article: ArticleDetail, now: Date): SavedArticle {
+  return {
+    id: article.id,
+    channel: article.channel,
+    title: article.title,
+    source: article.source,
+    category: article.category,
+    summary: article.summary,
+    readingMinutes: article.readingMinutes,
+    publishedAt: article.publishedAt,
+    image: article.image,
+    imageStyle: article.imageStyle,
+    savedAtIso: now.toISOString(),
+  };
+}
+
+function isArticleImage(value: unknown): value is ArticleImage {
+  if (!value || typeof value !== "object") return false;
+
+  const image = value as Partial<ArticleImage>;
+
+  return (
+    (image.type === "gradient" || image.type === "remote") &&
+    typeof image.value === "string" &&
+    typeof image.alt === "string"
+  );
+}
+
 function formatMonthDay(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
+}
+
+function addLearningActivity(activity: Map<string, number>, value: string) {
+  const key = toLocalDateKey(value);
+  if (!key) return;
+
+  activity.set(key, (activity.get(key) ?? 0) + 1);
+}
+
+function toLocalDateKey(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return formatLocalDateKey(date);
+}
+
+function formatLocalDateKey(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+function startOfLocalDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function addLocalDays(date: Date, days: number) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }

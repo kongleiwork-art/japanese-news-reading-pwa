@@ -7,6 +7,7 @@ import { Brain, CheckCircle2, Eye, HelpCircle, XCircle } from "lucide-react";
 import { VocabularyModal } from "@/components/vocabulary-modal";
 import {
   buildReviewQueue,
+  getCurrentStreak,
   getLearningStats,
   recordReviewResult,
   type ReviewRating,
@@ -46,12 +47,17 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
   const fullQueue = buildReviewQueue(learningState);
   const queue = fullQueue.filter((word) => !completedWordIds.has(word.id));
   const stats = getLearningStats(learningState);
+  const currentStreak = getCurrentStreak(learningState);
+  const completedCount = completedWordIds.size;
+  const initialQueueLength = completedCount + queue.length;
+  const progressPercent =
+    initialQueueLength > 0 ? Math.round((completedCount / initialQueueLength) * 100) : 0;
   const current = queue[0] ?? null;
   const [flipped, setFlipped] = useState(side === "back");
   const selectedWord = fullQueue.find((item) => item.id === selectedWordId) ?? null;
 
   if (!current) {
-    const hasSavedWords = fullQueue.length > 0;
+    const hasSavedWords = stats.savedWordCount > 0;
 
     return (
       <div className="pb-8">
@@ -71,7 +77,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
             </p>
             <Link
               href={hasSavedWords ? "/words" : "/"}
-              className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-card"
+              className="mt-5 inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-5 py-2.5 text-center text-sm font-semibold text-white shadow-card"
             >
               {hasSavedWords ? "查看单词本" : "去读文章"}
             </Link>
@@ -90,23 +96,35 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
   return (
     <div className="pb-8">
       <header className="px-6 pb-4 pt-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-3">
-            <div>
-              <p className="section-label">SMART REVIEW</p>
-              <h1 className="mt-2 font-serif-jp text-[32px] font-bold">复习</h1>
-            </div>
-            <span className="text-lg text-[var(--muted)]">1 / {queue.length}</span>
+        <div>
+          <p className="section-label">SMART REVIEW</p>
+          <h1 className="mt-2 font-serif-jp text-[32px] font-bold">复习</h1>
+        </div>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="flex min-h-14 flex-col items-center justify-center rounded-[20px] border border-[var(--line-soft)] bg-[var(--panel)] px-2 shadow-card">
+            <span className="whitespace-nowrap text-xs font-medium text-[var(--muted)]">已完成</span>
+            <span className="mt-0.5 whitespace-nowrap text-[17px] font-semibold leading-none text-[var(--ink)]">
+              {completedCount} / {initialQueueLength}
+            </span>
           </div>
-          <div className="flex items-center gap-3 text-[var(--muted)]">
-            <span>今日 {stats.dueReviewCount} 词</span>
-            <span className="rounded-full bg-[#f4ead7] px-3 py-1 text-[var(--accent)]">
-              连续 7 天
+          <div className="flex min-h-14 flex-col items-center justify-center rounded-[20px] border border-[var(--line-soft)] bg-[var(--panel)] px-2 shadow-card">
+            <span className="whitespace-nowrap text-xs font-medium text-[var(--muted)]">今日</span>
+            <span className="mt-0.5 whitespace-nowrap text-[17px] font-semibold leading-none text-[var(--ink)]">
+              {stats.dueReviewCount} 词
+            </span>
+          </div>
+          <div className="flex min-h-14 flex-col items-center justify-center rounded-[20px] border border-[#eadbbd] bg-[#f4ead7] px-2 shadow-card">
+            <span className="whitespace-nowrap text-xs font-medium text-[#9a641f]">连续</span>
+            <span className="mt-0.5 whitespace-nowrap text-[17px] font-semibold leading-none text-[var(--accent)]">
+              {currentStreak} 天
             </span>
           </div>
         </div>
         <div className="mt-4 h-2 rounded-full bg-[var(--chip-bg)]">
-          <div className="h-2 w-1/2 rounded-full bg-[var(--accent)]" />
+          <div
+            className="h-2 rounded-full bg-[var(--accent)] transition-[width]"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
       </header>
 
@@ -118,7 +136,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
         <button
           type="button"
           onClick={() => setFlipped((value) => !value)}
-          className="mt-6 block w-full text-left"
+          className="mt-6 block w-full rounded-[32px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--bg)]"
         >
           <div
             className={cn(
@@ -142,7 +160,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                     <p className="text-sm font-medium tracking-[0.08em] text-white/72">记忆面</p>
                     <p className="mt-2 text-base text-white/80">再点一次卡片可回到正面</p>
                   </div>
-                  <div className="rounded-full border border-white/18 bg-white/12 px-3 py-1 text-sm font-semibold text-white">
+                  <div className="inline-flex min-h-8 min-w-12 items-center justify-center rounded-full border border-white/18 bg-white/12 px-3 py-1 text-center text-sm font-semibold text-white">
                     {current.level}
                   </div>
                 </div>
@@ -169,7 +187,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                     </p>
                     <p className="mt-2 text-base text-[var(--muted)]">轻点翻面查看释义</p>
                   </div>
-                  <div className="rounded-full bg-[#f2e0b7] px-3 py-1 text-sm font-semibold text-[#8f5b13]">
+                  <div className="inline-flex min-h-8 min-w-12 items-center justify-center rounded-full bg-[#f2e0b7] px-3 py-1 text-center text-sm font-semibold text-[#8f5b13]">
                     {current.level}
                   </div>
                 </div>
@@ -201,7 +219,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
                   nextSide: "back",
                   selectedWordId: current.id,
                 })}
-                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-2 text-sm font-medium text-[var(--accent)] shadow-card"
+                className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-2 text-center text-sm font-medium text-[var(--accent)] shadow-card"
               >
                 <Eye className="h-4 w-4" />
                 查看详情
@@ -212,7 +230,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <button
                 type="button"
                 onClick={() => handleRating("again")}
-                className="group rounded-[24px] bg-[linear-gradient(180deg,#d85641_0%,#c84533_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(179,62,42,0.22)] transition hover:-translate-y-0.5"
+                className="group flex min-h-[112px] flex-col items-center justify-center rounded-[24px] bg-[linear-gradient(180deg,#d85641_0%,#c84533_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(179,62,42,0.22)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/14">
                   <XCircle className="h-5 w-5" />
@@ -223,7 +241,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <button
                 type="button"
                 onClick={() => handleRating("hard")}
-                className="group rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
+                className="group flex min-h-[112px] flex-col items-center justify-center rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(244,234,215,0.9)] text-[var(--muted)]">
                   <HelpCircle className="h-5 w-5" />
@@ -234,7 +252,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <button
                 type="button"
                 onClick={() => handleRating("good")}
-                className="group rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
+                className="group flex min-h-[112px] flex-col items-center justify-center rounded-[24px] border border-[var(--line-soft)] bg-[linear-gradient(180deg,#fffdfa_0%,#f8f1e8_100%)] px-4 py-5 text-center text-[var(--ink)] shadow-[0_14px_28px_rgba(102,74,42,0.08)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(244,234,215,0.9)] text-[var(--muted)]">
                   <CheckCircle2 className="h-5 w-5" />
@@ -245,7 +263,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
               <button
                 type="button"
                 onClick={() => handleRating("easy")}
-                className="group rounded-[24px] bg-[linear-gradient(180deg,#b36a1d_0%,#9a5319_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(122,73,22,0.24)] transition hover:-translate-y-0.5"
+                className="group flex min-h-[112px] flex-col items-center justify-center rounded-[24px] bg-[linear-gradient(180deg,#b36a1d_0%,#9a5319_100%)] px-4 py-5 text-center text-white shadow-[0_14px_30px_rgba(122,73,22,0.24)] transition hover:-translate-y-0.5"
               >
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/14">
                   <CheckCircle2 className="h-5 w-5" />
@@ -262,7 +280,7 @@ export function ReviewScreen({ selectedWordId, side }: ReviewScreenProps) {
           </>
         ) : null}
 
-        <div className="mt-6 rounded-[18px] border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-3 text-sm text-[var(--muted)] shadow-card">
+        <div className="mt-6 rounded-[18px] border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-3 text-center text-sm text-[var(--muted)] shadow-card">
           来源：来自《{current.articleTitle}》
         </div>
       </section>

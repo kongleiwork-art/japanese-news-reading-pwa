@@ -11,6 +11,9 @@ import {
 import { buildArticleImageStyle } from "@/components/article-image-style";
 import type { ArticleDetail, VocabularyItem } from "@/lib/articles";
 import { ArticleLearningControls } from "@/components/article-learning-controls";
+import { ArticleSaveButton } from "@/components/article-save-button";
+import { ArticleSwipeHome } from "@/components/article-swipe-home";
+import { ArticleBackHomeLink } from "@/components/home-return-state";
 import { segmentTextWithVocabulary } from "@/lib/articles/tokenizer";
 import { cn } from "@/lib/utils";
 
@@ -35,19 +38,19 @@ export function ArticleScreen({
   return (
     <div className="mx-auto min-h-screen w-full max-w-[430px] bg-[var(--surface)] pb-32 shadow-[0_18px_48px_rgba(77,52,27,0.12)]">
       <header className="sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 backdrop-blur">
-        <Link
-          href="/"
+        <ArticleBackHomeLink
           aria-label="返回首页"
           className="rounded-[18px] border border-[var(--line-soft)] glass-panel p-3 shadow-card"
         >
           <ArrowLeft className="h-5 w-5 text-[var(--muted)]" />
-        </Link>
+        </ArticleBackHomeLink>
         <h1
           lang="ja"
           className="line-clamp-1 flex-1 pr-1 font-serif-jp text-[17px] font-semibold leading-6"
         >
           {article.title}
         </h1>
+        <ArticleSaveButton article={article} />
         <Link
           href={readingToggleHref}
           scroll={false}
@@ -238,6 +241,7 @@ export function ArticleScreen({
         </div>
       </section>
 
+      <ArticleSwipeHome />
       <ArticleLearningControls article={article} selectedWord={selectedWord} />
     </div>
   );

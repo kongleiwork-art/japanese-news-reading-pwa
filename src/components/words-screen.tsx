@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { BookOpenText, ChevronDown, Search, Sparkles, Trash2 } from "lucide-react";
+import { BookOpenText, ChevronDown, Sparkles, Trash2 } from "lucide-react";
 
 import { VocabularyModal } from "@/components/vocabulary-modal";
 import { removeSavedWord, type SavedWord } from "@/lib/learning-store";
@@ -33,15 +33,10 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
           <Link
             href="#word-groups"
             aria-label="定位到单词分组"
-            className="rounded-[20px] border border-[var(--line-soft)] glass-panel p-2.5 text-[var(--accent)] shadow-card"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-[20px] border border-[var(--line-soft)] glass-panel text-[var(--accent)] shadow-card"
           >
             <BookOpenText className="h-4.5 w-4.5" />
           </Link>
-        </div>
-
-        <div className="mt-5 flex items-center gap-3 rounded-[18px] border border-[var(--line-soft)] glass-panel px-4 py-3 text-[var(--muted)] shadow-card">
-          <Search className="h-5 w-5" />
-          <span className="text-base">搜索单词、读音或释义...</span>
         </div>
       </header>
 
@@ -70,7 +65,7 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
             </p>
             <Link
               href="/"
-              className="mt-5 inline-flex rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-card"
+              className="mt-5 inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-5 py-2.5 text-center text-sm font-semibold text-white shadow-card"
             >
               去读文章
             </Link>
@@ -93,22 +88,22 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
                     [group.articleTitle]: !prev[group.articleTitle],
                   }))
                 }
-                className="flex w-full items-start justify-between gap-3 px-4 py-3.5 text-left"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left"
               >
-                <div className="flex min-w-0 flex-1 items-start gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line-soft)] bg-[var(--surface)] text-sm font-medium leading-none text-[var(--muted)]">
                     {group.items.length}词
                   </span>
                   <span
                     lang="ja"
-                    className="line-clamp-1 min-w-0 pt-1 font-serif-jp text-[19px] font-semibold leading-7 text-[var(--ink)]"
+                    className="line-clamp-1 min-w-0 font-serif-jp text-[19px] font-semibold leading-7 text-[var(--ink)]"
                   >
                     {group.articleTitle}
                   </span>
                 </div>
                 <ChevronDown
                   className={cn(
-                    "mt-1 h-5 w-5 shrink-0 text-[var(--muted)] transition",
+                    "h-5 w-5 shrink-0 text-[var(--muted)] transition",
                     open && "rotate-180",
                   )}
                 />
@@ -120,38 +115,47 @@ export function WordsScreen({ selectedWordId }: WordsScreenProps) {
                     <div
                       key={item.id}
                       className={cn(
-                        "flex items-start justify-between gap-4 px-4 py-4",
+                        "px-4 py-4",
                         index > 0 && "border-t border-[var(--line-soft)]",
                       )}
                     >
-                      <Link href={`/words?word=${item.id}`} className="min-w-0 flex-1 text-left">
-                        <div className="flex items-center gap-2">
+                      <Link
+                        href={`/words?word=${item.id}`}
+                        className="block min-w-0 rounded-[18px] px-3 py-2 text-center transition hover:bg-[rgba(255,255,255,0.46)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                      >
+                        <div className="flex min-w-0 items-center justify-center gap-2">
                           <h2
                             lang="ja"
-                            className="font-serif-jp text-[28px] font-bold text-[var(--ink)]"
+                            className="min-w-0 font-serif-jp text-[30px] font-bold leading-tight text-[var(--ink)]"
                           >
                             {item.surface}
                           </h2>
-                          <span className="inline-flex h-6 items-center rounded-full bg-[#cf9827] px-2 py-0.5 text-xs font-semibold text-white">
+                          <span className="inline-flex h-6 min-w-10 items-center justify-center rounded-full bg-[#cf9827] px-2 py-0.5 text-center text-xs font-semibold text-white">
                             {item.level}
                           </span>
                         </div>
-                        <p lang="ja" className="mt-1.5 text-base text-[var(--accent)]">
+                        <p lang="ja" className="mt-1.5 text-base leading-6 text-[var(--accent)]">
                           {item.reading}
                         </p>
-                        <p className="mt-1 text-sm text-[var(--muted)]">
+                        <p className="mx-auto mt-1 max-w-[260px] text-sm leading-6 text-[var(--muted)]">
                           {item.meanings.join(" / ")}
                         </p>
                       </Link>
 
-                      <div className="shrink-0 rounded-2xl bg-[var(--surface)] px-3 py-2 text-right text-[11px] text-[var(--muted)]">
-                        <p>复习 {item.reviewCount} 次</p>
-                        <p className="mt-1">保存于 {item.savedAt}</p>
+                      <div className="mt-3 flex min-h-12 items-center justify-between gap-2 rounded-2xl bg-[var(--surface)] px-3 py-2 text-center text-[11px] text-[var(--muted)]">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <span className="inline-flex min-h-8 flex-1 items-center justify-center whitespace-nowrap rounded-xl bg-[rgba(255,255,255,0.54)] px-2">
+                            复习 {item.reviewCount} 次
+                          </span>
+                          <span className="inline-flex min-h-8 flex-1 items-center justify-center whitespace-nowrap rounded-xl bg-[rgba(255,255,255,0.54)] px-2">
+                            保存于 {item.savedAt}
+                          </span>
+                        </div>
                         <button
                           type="button"
                           aria-label={`删除${item.surface}`}
                           onClick={() => removeSavedWord(item.id)}
-                          className="ml-auto mt-3 block text-[var(--muted-soft)]"
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[var(--muted-soft)] transition hover:bg-[rgba(118,174,188,0.12)] hover:text-[var(--accent)]"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

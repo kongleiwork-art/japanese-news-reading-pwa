@@ -3,26 +3,14 @@
 import Link from "next/link";
 import { Sparkles, TrendingUp } from "lucide-react";
 
-import { getLearningStats } from "@/lib/learning-store";
+import { getLearningStats, getTodayReviewCount } from "@/lib/learning-store";
 import { useLearningState } from "@/lib/use-learning-state";
-
-function isSameLocalDay(value: string, now: Date) {
-  const date = new Date(value);
-
-  return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  );
-}
 
 export function TodayReviewCard() {
   const learningState = useLearningState();
   const now = new Date();
   const stats = getLearningStats(learningState, now);
-  const reviewedToday = learningState.reviewRecords.filter((record) =>
-    isSameLocalDay(record.reviewedAt, now),
-  ).length;
+  const reviewedToday = getTodayReviewCount(learningState, now);
   const headline =
     stats.dueReviewCount > 0
       ? `${stats.dueReviewCount} 个单词等待复习`

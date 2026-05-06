@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Bell, Clock3, Search } from "lucide-react";
+import { Clock3, UserRound } from "lucide-react";
 
 import { buildArticleImageStyle } from "@/components/article-image-style";
+import { HomeArticleLink, HomeScrollRestorer } from "@/components/home-return-state";
 import { TodayReviewCard } from "@/components/today-review-card";
 import {
   articleCategories,
@@ -16,7 +17,6 @@ const allCategory = articleCategories[0];
 const zh = {
   appName: "\u8f7b\u8bfb\u65e5\u8bed",
   subtitle: "\u4ece\u65b0\u95fb\u8fdb\u5165\u771f\u5b9e\u65e5\u8bed",
-  searchPlaceholder: "\u641c\u7d22\u65b0\u95fb\u3001\u5355\u8bcd\u6216\u4e3b\u9898",
   minutes: "\u5206\u949f",
 } as const;
 
@@ -67,6 +67,7 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
 
   return (
     <div>
+      <HomeScrollRestorer />
       <section className="px-6 pb-4 pt-5">
         <div className="flex items-start justify-between">
           <div>
@@ -77,18 +78,12 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
             <p className="mt-1 text-sm text-[var(--muted)]">{zh.subtitle}</p>
           </div>
           <Link
-            href="/me#study-settings"
-            aria-label="前往学习设置"
+            href="/me"
+            aria-label="查看本地学习状态"
             className="relative rounded-[20px] border border-[var(--line-soft)] glass-panel p-3 text-[var(--muted)] shadow-card"
           >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-3 top-2 h-2.5 w-2.5 rounded-full bg-[#bc4c32]" />
+            <UserRound className="h-5 w-5" />
           </Link>
-        </div>
-
-        <div className="mt-5 flex items-center gap-3 rounded-[18px] border border-[var(--line-soft)] glass-panel px-4 py-3 text-[var(--muted)] shadow-card">
-          <Search className="h-5 w-5" />
-          <span className="text-[15px]">{zh.searchPlaceholder}</span>
         </div>
 
         <div className="mt-5 rounded-[20px] border border-[var(--line-soft)] bg-[rgba(240,231,216,0.72)] p-1.5 shadow-card">
@@ -141,8 +136,9 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
 
         <div className="mt-4 space-y-3.5">
           {filtered.map((article) => (
-            <Link
+            <HomeArticleLink
               key={article.id}
+              articleId={article.id}
               href={`/article/${article.id}`}
               className="block overflow-hidden rounded-[22px] border border-[var(--line-soft)] bg-[var(--panel)] shadow-card transition hover:-translate-y-0.5"
             >
@@ -177,7 +173,7 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
                   <span>{article.publishedAt}</span>
                 </div>
               </div>
-            </Link>
+            </HomeArticleLink>
           ))}
         </div>
       </section>
