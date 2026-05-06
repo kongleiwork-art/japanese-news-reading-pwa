@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日语新闻学习 PWA - 项目介绍</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --cream: #fef9ef;
+            --sakura: #ffb7c5;
+            --sakura-dark: #e8919f;
+            --text-dark: #1a1a2e;
+            --text-light: #f8f8f8;
+            --gradient-soft: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-warm: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-cool: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--primary);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .slide-number {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            font-size: 14px;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+
+        .brand-mark {
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .brand-mark span {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        /* Slide 1: Title */
+        .slide-title {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            text-align: center;
+        }
+
+        .slide-title::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(233, 69, 96, 0.15) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        }
+
+        .main-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #ffb7c5 50%, #e94560 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .main-title-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--sakura);
+            margin-bottom: 40px;
+            letter-spacing: 8px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .subtitle {
+            font-size: 1.4rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.5;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator span {
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Slide 2: Project Overview */
+        .slide-overview {
+            background: linear-gradient(180deg, #0f3460 0%, #16213e 100%);
+        }
+
+        .section-label {
+            font-size: 12px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .overview-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(233, 69, 96, 0.3);
+        }
+
+        .overview-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .overview-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .overview-card p {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+        }
+
+        /* Slide 3: Dual Channel */
+        .slide-channel {
+            background: var(--cream);
+            color: var(--text-dark);
+        }
+
+        .slide-channel::before {
+            opacity: 0.03;
+        }
+
+        .slide-channel .section-label {
+            color: var(--accent);
+        }
+
+        .slide-channel .section-title::after {
+            background: var(--accent);
+        }
+
+        .channel-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .channel-card {
+            border-radius: 24px;
+            padding: 50px 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .channel-card:hover {
+            transform: scale(1.02);
+        }
+
+        .channel-easy {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #1b5e20;
+        }
+
+        .channel-original {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #0d47a1;
+        }
+
+        .channel-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+
+        .channel-easy .channel-badge {
+            background: rgba(27, 94, 32, 0.15);
+        }
+
+        .channel-original .channel-badge {
+            background: rgba(13, 71, 161, 0.15);
+        }
+
+        .channel-card h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .channel-card .jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            margin-bottom: 25px;
+        }
+
+        .channel-card p {
+            font-size: 1rem;
+            line-height: 1.8;
+            opacity: 0.8;
+        }
+
+        .channel-source {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .channel-difficulty {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .channel-easy .channel-difficulty {
+            background: rgba(27, 94, 32, 0.1);
+            color: #2e7d32;
+        }
+
+        .channel-original .channel-difficulty {
+            background: rgba(13, 71, 161, 0.1);
+            color: #1565c0;
+        }
+
+        /* Slide 4: Features */
+        .slide-features {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 25px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(233, 69, 96, 0.2);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .feature-content h4 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .feature-content p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+        }
+
+        /* Slide 5: Tech Stack */
+        .slide-tech {
+            background: var(--cream);
+            color: var(--text-dark);
+        }
+
+        .slide-tech::before {
+            opacity: 0.02;
+        }
+
+        .tech-container {
+            display: flex;
+            gap: 60px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .tech-stack {
+            flex: 1;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .tech-item:last-child {
+            border-bottom: none;
+        }
+
+        .tech-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .tech-desc {
+            font-size: 0.95rem;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .tech-visual {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .badge-secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .badge-accent {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-dark {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Slide 6: Architecture */
+        .slide-architecture {
+            background: linear-gradient(180deg, #0f3460 0%, #1a1a2e 100%);
+        }
+
+        .arch-diagram {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            max-width: 1100px;
+        }
+
+        .arch-layer {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .arch-layer h4 {
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .arch-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .arch-item {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .arch-arrow {
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.5;
+        }
+
+        /* Slide 7: Pages */
+        .slide-pages {
+            background: var(--cream);
+            color: var(--text-dark);
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .page-item {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .page-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .page-item h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .page-item p {
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.5);
+            line-height: 1.5;
+        }
+
+        /* Slide 8: PWA Features */
+        .slide-pwa {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .pwa-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+        }
+
+        .pwa-item {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .pwa-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .pwa-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .pwa-item p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+        }
+
+        /* Slide 9: Roadmap */
+        .slide-roadmap {
+            background: var(--cream);
+            color: var(--text-dark);
+        }
+
+        .roadmap-timeline {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .roadmap-phase {
+            flex: 1;
+            position: relative;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .roadmap-phase::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            right: -20px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 15px solid white;
+            z-index: 1;
+        }
+
+        .roadmap-phase:last-child::before {
+            display: none;
+        }
+
+        .phase-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .roadmap-phase h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .roadmap-list {
+            list-style: none;
+        }
+
+        .roadmap-list li {
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .roadmap-list li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Slide 10: Thank You */
+        .slide-end {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%);
+            text-align: center;
+        }
+
+        .end-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #ffb7c5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .end-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 50px;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        /* Navigation */
+        .nav-dots {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot:hover,
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        .slide-title .nav-dot,
+        .slide-overview .nav-dot,
+        .slide-features .nav-dot,
+        .slide-architecture .nav-dot,
+        .slide-pwa .nav-dot,
+        .slide-end .nav-dot {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 40px;
+            }
+
+            .main-title {
+                font-size: 3rem;
+            }
+
+            .overview-grid,
+            .features-grid,
+            .pwa-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .channel-container,
+            .tech-container {
+                flex-direction: column;
+            }
+
+            .pages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .roadmap-timeline {
+                flex-direction: column;
+            }
+
+            .roadmap-phase::before {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .main-title {
+                font-size: 2.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .pages-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-dots {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Dots -->
+    <nav class="nav-dots">
+        <div class="nav-dot active" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+        <div class="nav-dot" data-slide="8"></div>
+        <div class="nav-dot" data-slide="9"></div>
+        <div class="nav-dot" data-slide="10"></div>
+    </nav>
+
+    <!-- Slide 1: Title -->
+    <section class="slide slide-title" id="slide-1">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <h1 class="main-title">日语新闻学习 PWA</h1>
+        <p class="main-title-jp">日本語ニュース学習アプリ</p>
+        <p class="subtitle">用最新日语新闻学日语 — 面向中文用户的轻量级学习工具</p>
+        <div class="scroll-indicator">
+            <span>SCROLL</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+            </svg>
+        </div>
+        <span class="slide-number">01 / 10</span>
+    </section>
+
+    <!-- Slide 2: Project Overview -->
+    <section class="slide slide-overview" id="slide-2">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">PROJECT OVERVIEW</span>
+        <h2 class="section-title">项目概述</h2>
+        <div class="overview-grid">
+            <div class="overview-card">
+                <div class="overview-icon">📰</div>
+                <h3>真实新闻内容</h3>
+                <p>源自NHK NEWS WEB的日语新闻，让学习者接触真实、地道的日语表达</p>
+            </div>
+            <div class="overview-card">
+                <div class="overview-icon">🎯</div>
+                <h3>双频道设计</h3>
+                <p>简单频道与原文频道，满足从N5到N2不同水平学习者的需求</p>
+            </div>
+            <div class="overview-card">
+                <div class="overview-icon">📱</div>
+                <h3>PWA轻量应用</h3>
+                <p>可安装到桌面、支持离线阅读，随时随地开启学习之旅</p>
+            </div>
+        </div>
+        <span class="slide-number">02 / 10</span>
+    </section>
+
+    <!-- Slide 3: Dual Channel -->
+    <section class="slide slide-channel" id="slide-3">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">DUAL CHANNEL</span>
+        <h2 class="section-title">双频道阅读体验</h2>
+        <div class="channel-container">
+            <div class="channel-card channel-easy">
+                <span class="channel-difficulty">N5 - N4</span>
+                <span class="channel-badge">📗 简单频道</span>
+                <h3>简单新闻</h3>
+                <p class="jp">、易しいニュース</p>
+                <p>来自NHK NEWS WEB EASY，简短的句子、清晰的语法结构，适合初中级学习者作为每日输入</p>
+                <div class="channel-source">数据源: NHK NEWS WEB EASY</div>
+            </div>
+            <div class="channel-card channel-original">
+                <span class="channel-difficulty">N3 - N2</span>
+                <span class="channel-badge">📘 原文频道</span>
+                <h3>原文新闻</h3>
+                <p class="jp">元のニュース</p>
+                <p>来自NHK NEWS WEB的正常新闻流，让用户逐步适应母语者的阅读速度和表达方式</p>
+                <div class="channel-source">数据源: NHK NEWS WEB</div>
+            </div>
+        </div>
+        <span class="slide-number">03 / 10</span>
+    </section>
+
+    <!-- Slide 4: Features -->
+    <section class="slide slide-features" id="slide-4">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">KEY FEATURES</span>
+        <h2 class="section-title">核心功能</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">📝</div>
+                <div class="feature-content">
+                    <h4>词汇高亮与卡片</h4>
+                    <p>点击单词即时显示假名、词性和中文释义，轻松积累生词</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📚</div>
+                <div class="feature-content">
+                    <h4>单词本管理</h4>
+                    <p>收藏词汇集中管理，形成个人专属的学习词库</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔖</div>
+                <div class="feature-content">
+                    <h4>文章收藏</h4>
+                    <p>收藏感兴趣的文章，支持稍后阅读，沉淀学习资产</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <div class="feature-content">
+                    <h4>学习进度追踪</h4>
+                    <p>记录阅读天数、篇数等学习数据，激励持续学习</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔄</div>
+                <div class="feature-content">
+                    <h4>复习提醒</h4>
+                    <p>今日复习卡片设计，帮助巩固已学内容</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-content">
+                    <h4>离线阅读</h4>
+                    <p>PWA支持离线缓存，最近阅读和收藏内容随时可读</p>
+                </div>
+            </div>
+        </div>
+        <span class="slide-number">04 / 10</span>
+    </section>
+
+    <!-- Slide 5: Tech Stack -->
+    <section class="slide slide-tech" id="slide-5">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">TECH STACK</span>
+        <h2 class="section-title">技术栈</h2>
+        <div class="tech-container">
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <span class="tech-name">Next.js 16</span>
+                    <span class="tech-desc">App Router, 服务端渲染, API Routes</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-name">React 19</span>
+                    <span class="tech-desc">最新React特性，Hooks, Server Components</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-name">TypeScript</span>
+                    <span class="tech-desc">类型安全，开发体验优化</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-name">Tailwind CSS 4</span>
+                    <span class="tech-desc">Utility-first 样式，快速迭代</span>
+                </div>
+                <div class="tech-item">
+                    <span class="tech-name">PWA</span>
+                    <span class="tech-desc">Service Worker, 离线缓存, 可安装</span>
+                </div>
+            </div>
+            <div class="tech-visual">
+                <span class="tech-badge badge-primary">Next.js 16</span>
+                <span class="tech-badge badge-secondary">React 19</span>
+                <span class="tech-badge badge-accent">TypeScript</span>
+                <span class="tech-badge badge-dark">Tailwind CSS 4</span>
+                <span class="tech-badge badge-primary">PWA</span>
+            </div>
+        </div>
+        <span class="slide-number">05 / 10</span>
+    </section>
+
+    <!-- Slide 6: Architecture -->
+    <section class="slide slide-architecture" id="slide-6">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">ARCHITECTURE</span>
+        <h2 class="section-title">系统架构</h2>
+        <div class="arch-diagram">
+            <div class="arch-layer">
+                <h4>📱 前端展示层</h4>
+                <div class="arch-items">
+                    <div class="arch-item">HomeScreen</div>
+                    <div class="arch-item">ArticleScreen</div>
+                    <div class="arch-item">WordsScreen</div>
+                    <div class="arch-item">ReviewScreen</div>
+                </div>
+            </div>
+            <span class="arch-arrow">→</span>
+            <div class="arch-layer">
+                <h4>⚙️ 业务逻辑层</h4>
+                <div class="arch-items">
+                    <div class="arch-item">API Routes</div>
+                    <div class="arch-item">Tokenizers</div>
+                    <div class="arch-item">Parsers</div>
+                    <div class="arch-item">Dictionary</div>
+                </div>
+            </div>
+            <span class="arch-arrow">→</span>
+            <div class="arch-layer">
+                <h4>🗄️ 数据层</h4>
+                <div class="arch-items">
+                    <div class="arch-item">Articles Cache</div>
+                    <div class="arch-item">Offline Store</div>
+                    <div class="arch-item">Learning State</div>
+                    <div class="arch-item">Vocabulary</div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-number">06 / 10</span>
+    </section>
+
+    <!-- Slide 7: Pages -->
+    <section class="slide slide-pages" id="slide-7">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">PAGES</span>
+        <h2 class="section-title">核心页面</h2>
+        <div class="pages-grid">
+            <div class="page-item">
+                <div class="page-icon">🏠</div>
+                <h4>首页</h4>
+                <p>双频道切换<br>新闻列表<br>今日推荐</p>
+            </div>
+            <div class="page-item">
+                <div class="page-icon">📄</div>
+                <h4>文章详情</h4>
+                <p>正文阅读<br>词汇卡片<br>收藏功能</p>
+            </div>
+            <div class="page-item">
+                <div class="page-icon">📖</div>
+                <h4>单词本</h4>
+                <p>收藏词汇<br>学习记录<br>搜索管理</p>
+            </div>
+            <div class="page-item">
+                <div class="page-icon">🔄</div>
+                <h4>复习</h4>
+                <p>今日复习<br>艾宾浩斯<br>记忆巩固</p>
+            </div>
+            <div class="page-item">
+                <div class="page-icon">👤</div>
+                <h4>我的</h4>
+                <p>学习统计<br>阅读偏好<br>安装提示</p>
+            </div>
+        </div>
+        <span class="slide-number">07 / 10</span>
+    </section>
+
+    <!-- Slide 8: PWA Features -->
+    <section class="slide slide-pwa" id="slide-8">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">PWA CAPABILITIES</span>
+        <h2 class="section-title">PWA 特性</h2>
+        <div class="pwa-grid">
+            <div class="pwa-item">
+                <div class="pwa-icon">⬇️</div>
+                <h4>可安装</h4>
+                <p>支持添加到主屏幕<br>接近原生应用体验</p>
+            </div>
+            <div class="pwa-item">
+                <div class="pwa-icon">📶</div>
+                <h4>离线阅读</h4>
+                <p>最近20篇文章缓存<br>弱网环境下仍可阅读</p>
+            </div>
+            <div class="pwa-item">
+                <div class="pwa-icon">🚀</div>
+                <h4>快速响应</h4>
+                <p>Service Worker缓存<br>首屏加载优化</p>
+            </div>
+        </div>
+        <span class="slide-number">08 / 10</span>
+    </section>
+
+    <!-- Slide 9: Roadmap -->
+    <section class="slide slide-roadmap" id="slide-9">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <span class="section-label">ROADMAP</span>
+        <h2 class="section-title">开发路线图</h2>
+        <div class="roadmap-timeline">
+            <div class="roadmap-phase">
+                <span class="phase-number">A</span>
+                <h3>阶段一：MVP</h3>
+                <ul class="roadmap-list">
+                    <li>接入NHK EASY数据源</li>
+                    <li>双频道UI完成</li>
+                    <li>详情页核心功能</li>
+                    <li>收藏和阅读记录</li>
+                    <li>PWA基础缓存</li>
+                </ul>
+            </div>
+            <div class="roadmap-phase">
+                <span class="phase-number">B</span>
+                <h3>阶段二：学习增强</h3>
+                <ul class="roadmap-list">
+                    <li>词汇弹层优化</li>
+                    <li>难度标签系统</li>
+                    <li>句子辅助释义</li>
+                    <li>复习功能增强</li>
+                    <li>性能优化</li>
+                </ul>
+            </div>
+            <div class="roadmap-phase">
+                <span class="phase-number">C</span>
+                <h3>阶段三：稳定扩展</h3>
+                <ul class="roadmap-list">
+                    <li>多内容源接入</li>
+                    <li>抓取监控系统</li>
+                    <li>用户体系完善</li>
+                    <li>高级学习功能</li>
+                    <li>多语言UI</li>
+                </ul>
+            </div>
+        </div>
+        <span class="slide-number">09 / 10</span>
+    </section>
+
+    <!-- Slide 10: End -->
+    <section class="slide slide-end" id="slide-10">
+        <div class="brand-mark">
+            <span>🇯🇵</span>
+            <span>Japanese News PWA</span>
+        </div>
+        <h2 class="end-title">谢谢观看</h2>
+        <p class="end-subtitle">日本語ニュースで学ぶ</p>
+        <div class="contact-info">
+            <div class="contact-item">
+                <span>🌐</span>
+                <span>http://localhost:3000</span>
+            </div>
+            <div class="contact-item">
+                <span>📂</span>
+                <span>GitHub Repository</span>
+            </div>
+        </div>
+        <span class="slide-number">10 / 10</span>
+    </section>
+
+    <script>
+        // Smooth scroll and navigation
+        const slides = document.querySelectorAll('.slide');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        // Update active dot on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const slideId = entry.target.id.replace('slide-', '');
+                    navDots.forEach(dot => {
+                        dot.classList.remove('active');
+                        if (dot.dataset.slide === slideId) {
+                            dot.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        slides.forEach(slide => observer.observe(slide));
+
+        // Click navigation
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideNum = dot.dataset.slide;
+                const targetSlide = document.getElementById(`slide-${slideNum}`);
+                targetSlide.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const currentSlide = Array.from(slides).findIndex(slide => {
+                const rect = slide.getBoundingClientRect();
+                return rect.top >= -100 && rect.top <= 100;
+            });
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (currentSlide < slides.length - 1) {
+                    slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (currentSlide > 0) {
+                    slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Animate elements on scroll
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.overview-card, .feature-item, .channel-card, .page-item, .pwa-item, .roadmap-phase');
+            elements.forEach((el, index) => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100) {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }
+            });
+        };
+
+        // Initial styles for animation
+        document.querySelectorAll('.overview-card, .feature-item, .channel-card, .page-item, .pwa-item, .roadmap-phase').forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+        });
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll();
+    </script>
+</body>
+</html>
