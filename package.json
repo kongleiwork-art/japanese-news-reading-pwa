@@ -1,6 +1,6 @@
 {
   "name": "new-project",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A Japanese news reading PWA built with Next.js for Chinese-speaking learners.",
   "directories": {
     "doc": "docs"
@@ -10,13 +10,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "npm run test:parsers && npm run test:meta && npm run test:tokenizer && npm run test:tokenizer-grammar-tails && npm run test:dictionary && npm run test:dictionary-coverage",
+    "test": "npm run test:parsers && npm run test:meta && npm run test:tokenizer && npm run test:tokenizer-grammar-tails && npm run test:dictionary && npm run test:dictionary-coverage && npm run test:selection && npm run test:learning",
     "test:parsers": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-parsers.test.mjs",
     "test:meta": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-meta.test.mjs",
     "test:tokenizer": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-tokenizer.test.mjs",
     "test:tokenizer-grammar-tails": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-tokenizer-grammar-tails.test.mjs",
     "test:dictionary": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-dictionary-api.test.mjs",
     "test:dictionary-coverage": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-dictionary-coverage.test.mjs",
+    "test:selection": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/articles-selection.test.mjs",
+    "db:init": "tsx scripts/init-db.ts",
+    "crawl:articles": "tsx scripts/crawl-and-save.ts",
     "report:dictionary": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/dictionary-coverage-report.mjs",
     "test:content": "node scripts/content-pipeline-smoke.mjs",
     "test:learning": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/learning-state-smoke.mjs"
@@ -25,6 +28,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@libsql/client": "^0.17.3",
     "clsx": "^2.1.1",
     "lucide-react": "^1.11.0",
     "next": "^16.2.4",
@@ -41,6 +45,10 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "tailwindcss": "^4.2.4",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }

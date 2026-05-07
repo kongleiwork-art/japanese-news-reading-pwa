@@ -13,6 +13,8 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const channelParam = request.nextUrl.searchParams.get("channel");
   const categoryParam = request.nextUrl.searchParams.get("category");
+  const batchParam = request.nextUrl.searchParams.get("batch");
+  const batch = batchParam ? Number.parseInt(batchParam, 10) : 0;
 
   if (channelParam && !articleChannels.includes(channelParam as ArticleChannel)) {
     return NextResponse.json(
@@ -37,6 +39,7 @@ export async function GET(request: NextRequest) {
   const items = await listStandardizedArticles({
     channel: (channelParam as ArticleChannel | null) ?? undefined,
     category: (categoryParam as ArticleCategory | null) ?? undefined,
+    batch: Number.isFinite(batch) && batch > 0 ? batch : 0,
   });
 
   return NextResponse.json(items);

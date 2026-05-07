@@ -1,13 +1,12 @@
 import {
-  EASY_ARTICLE_LIMIT,
   EASY_AUTH_COOKIE_TTL_MS,
+  CANDIDATE_ARTICLE_LIMIT,
   NHK_EASY_AUTHORIZATION_URL,
   NHK_EASY_DEFAULT_AREA,
   NHK_EASY_SITEMAP_URL,
   NHK_NEWS_WEB_ARTICLE_API_BASE,
   NHK_NEWS_WEB_ARTICLE_URL_BASE,
   NHK_NEWS_WEB_SITEMAP_URL,
-  ORIGINAL_ARTICLE_LIMIT,
   USER_AGENT,
   type EasyConsentArea,
 } from "./config.ts";
@@ -58,6 +57,29 @@ function now() {
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T, index: number) => Promise<R>,
+) {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, () => worker()),
+  );
+
+  return results;
 }
 
 function buildEasyConsentCookieValue(area: EasyConsentArea = NHK_EASY_DEFAULT_AREA) {
@@ -170,14 +192,13 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
     const sitemap = await fetchText(NHK_EASY_SITEMAP_URL);
     const entries = parseSitemapEntries(sitemap)
       .filter((entry) => isEasyArticleUrl(entry.loc))
-      .slice(0, EASY_ARTICLE_LIMIT);
+      .slice(0, CANDIDATE_ARTICLE_LIMIT);
     const authorizedCookieHeader =
       entries.length > 0 ? await getEasyAuthorizedCookieHeader(entries[0].loc) : "";
 
     let failedItems = 0;
     const fallbackArticles: NormalizedArticle[] = [];
-    const articles = await Promise.all(
-      entries.map(async (entry) => {
+    const articles = await mapWithConcurrency(entries, 5, async (entry) => {
         try {
           if (!authorizedCookieHeader) {
             throw new Error("NHK EASY anonymous authorization cookie is empty");
@@ -208,8 +229,7 @@ export async function loadEasyArticles(): Promise<SourceLoadResult> {
           failedItems += 1;
           return null;
         }
-      }),
-    );
+      });
 
     const normalizedArticles = articles.filter(
       (article): article is NormalizedArticle => article !== null,
@@ -328,13 +348,12 @@ export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
     const sitemap = await fetchText(NHK_NEWS_WEB_SITEMAP_URL);
     const entries = parseSitemapEntries(sitemap)
       .filter((entry) => isNewsWebOriginalArticleUrl(entry.loc))
-      .slice(0, ORIGINAL_ARTICLE_LIMIT);
+      .slice(0, CANDIDATE_ARTICLE_LIMIT);
     const authorizedCookieHeader =
       entries.length > 0 ? await getNhkAuthorizedCookieHeader(entries[0].loc) : "";
 
     let failedItems = 0;
-    const articles = await Promise.all(
-      entries.map(async (entry) => {
+    const articles = await mapWithConcurrency(entries, 5, async (entry) => {
         try {
           const articleId = extractNewsWebOriginalArticleId(entry.loc);
           return await loadNewsWebArticleFromApi(articleId, {
@@ -346,8 +365,7 @@ export async function loadNewsWebArticles(): Promise<SourceLoadResult> {
           failedItems += 1;
           return null;
         }
-      }),
-    );
+      });
 
     const normalizedArticles = articles.filter(
       (article): article is NormalizedArticle => article !== null,

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock3, UserRound } from "lucide-react";
+import { Clock3, RefreshCw, UserRound } from "lucide-react";
 
 import { buildArticleImageStyle } from "@/components/article-image-style";
 import { HomeArticleLink, HomeScrollRestorer } from "@/components/home-return-state";
@@ -39,10 +39,11 @@ const categoryItems: { value: ArticleCategory; label: string }[] = articleCatego
 type HomeScreenProps = {
   channel: ArticleChannel;
   category: ArticleCategory;
+  batch: number;
   articles: ArticlePreview[];
 };
 
-function buildHomeHref(channel: ArticleChannel, category?: ArticleCategory) {
+function buildHomeHref(channel: ArticleChannel, category?: ArticleCategory, batch?: number) {
   const params = new URLSearchParams();
 
   if (channel === "original") {
@@ -53,11 +54,15 @@ function buildHomeHref(channel: ArticleChannel, category?: ArticleCategory) {
     params.set("category", category);
   }
 
+  if (batch && batch > 0) {
+    params.set("batch", String(batch));
+  }
+
   const query = params.toString();
   return query ? `/?${query}` : "/";
 }
 
-export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
+export function HomeScreen({ channel, category, batch, articles }: HomeScreenProps) {
   const filtered = articles.filter((article) => {
     if (article.channel !== channel) return false;
     if (category === allCategory) return true;
@@ -115,7 +120,7 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
 
             return (
               <Link
-                key={item.value}
+              key={item.value}
                 href={buildHomeHref(channel, item.value)}
                 className={cn(
                   "whitespace-nowrap rounded-full border px-4 py-2 text-sm shadow-[0_1px_0_rgba(255,255,255,0.5)_inset]",
@@ -133,6 +138,20 @@ export function HomeScreen({ channel, category, articles }: HomeScreenProps) {
 
       <section className="px-6 py-4">
         <TodayReviewCard />
+
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[var(--ink)]">学习精选</p>
+            <p className="mt-0.5 text-xs text-[var(--muted)]">从已筛选新闻池中展示 12 篇</p>
+          </div>
+          <Link
+            href={buildHomeHref(channel, category, batch + 1)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[var(--line-soft)] bg-[var(--panel)] px-4 py-2 text-sm font-semibold text-[var(--accent-strong)] shadow-card"
+          >
+            <RefreshCw className="h-4 w-4" />
+            换一批
+          </Link>
+        </div>
 
         <div className="mt-4 space-y-3.5">
           {filtered.map((article) => (

@@ -1,4 +1,5 @@
 import type { VocabularyItem } from "./types.ts";
+import { newsCoreDictionary } from "./news-core-dictionary.ts";
 
 export type DictionaryEntry = Omit<VocabularyItem, "savedAt" | "reviewCount">;
 
@@ -1828,4 +1829,5 @@ export const localDictionary: Record<string, DictionaryEntry> = {
     ],
     aiNote: "体育和选举新闻中常见，标题里常用过去形「敗れる」。",
   },
+  ...newsCoreDictionary,
 };

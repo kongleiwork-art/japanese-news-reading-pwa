@@ -1,10 +1,15 @@
-import { ARTICLES_CACHE_TTL_MS } from "./config.ts";
+import { ARTICLES_CACHE_TTL_MS, VISIBLE_ARTICLE_LIMIT } from "./config.ts";
+import {
+  getPersistedArticleDetail,
+  listPersistedArticles,
+} from "../db/articles.ts";
 import {
   getEasyCookieCacheState,
   loadEasyArticles,
   loadNewsWebArticleById,
   loadNewsWebArticles,
 } from "./sources.ts";
+import { selectLearningArticles } from "./selection.ts";
 import {
   articleCategories,
   type ArticleCategory,
@@ -154,6 +159,11 @@ async function getSourceArticles(
 async function getNormalizedArticles(filters?: {
   channel?: ArticleChannel;
 }) {
+  const persistedArticles = await tryListPersistedArticles({ channel: filters?.channel });
+  if (persistedArticles && persistedArticles.length > 0) {
+    return persistedArticles;
+  }
+
   const requestedChannels = filters?.channel
     ? [filters.channel]
     : (["easy", "original"] as const);
@@ -165,9 +175,8 @@ async function getNormalizedArticles(filters?: {
     ),
   );
 
-  return articlesByChannel.flat().sort(
-    (left, right) =>
-      new Date(right.publishedAtIso).getTime() - new Date(left.publishedAtIso).getTime(),
+  return articlesByChannel.flatMap((articles, index) =>
+    selectLearningArticles(articles, { channel: requestedChannels[index] }),
   );
 }
 
@@ -239,9 +248,12 @@ function toStandardizedDetail(article: NormalizedArticle): StandardizedArticleDe
 export async function listArticlePreviews(filters?: {
   channel?: ArticleChannel;
   category?: ArticleCategory;
+  batch?: number;
 }) {
   const articles = await getNormalizedArticles({ channel: filters?.channel });
-  return articles.filter((article) => matchesFilters(article, filters)).map(toScreenPreview);
+  return getVisibleArticles(articles.filter((article) => matchesFilters(article, filters)), filters?.batch).map(
+    toScreenPreview,
+  );
 }
 
 export async function getArticleDetail(articleId: string) {
@@ -262,11 +274,13 @@ export async function getArticleDetail(articleId: string) {
 export async function listStandardizedArticles(filters?: {
   channel?: ArticleChannel;
   category?: ArticleCategory;
+  batch?: number;
 }) {
   const articles = await getNormalizedArticles({ channel: filters?.channel });
-  return articles
-    .filter((article) => matchesFilters(article, filters))
-    .map(toStandardizedPreview);
+  return getVisibleArticles(
+    articles.filter((article) => matchesFilters(article, filters)),
+    filters?.batch,
+  ).map(toStandardizedPreview);
 }
 
 export async function getStandardizedArticleDetail(articleId: string) {
@@ -275,6 +289,11 @@ export async function getStandardizedArticleDetail(articleId: string) {
 }
 
 async function findArticleById(articleId: string) {
+  const persistedArticle = await tryGetPersistedArticleDetail(articleId);
+  if (persistedArticle) {
+    return persistedArticle;
+  }
+
   const channel = inferArticleChannel(articleId);
   const articles = await getNormalizedArticles({ channel });
   const article = articles.find((item) => item.id === articleId);
@@ -284,6 +303,36 @@ async function findArticleById(articleId: string) {
   }
 
   return loadNewsWebArticleById(articleId).catch(() => null);
+}
+
+async function tryListPersistedArticles(filters?: {
+  channel?: ArticleChannel;
+}) {
+  try {
+    return await listPersistedArticles(filters);
+  } catch {
+    return null;
+  }
+}
+
+function getVisibleArticles(articles: NormalizedArticle[], batch = 0) {
+  if (articles.length <= VISIBLE_ARTICLE_LIMIT) {
+    return articles;
+  }
+
+  const batchIndex = Number.isFinite(batch) && batch > 0 ? Math.floor(batch) : 0;
+  const start = (batchIndex * VISIBLE_ARTICLE_LIMIT) % articles.length;
+  const rotated = [...articles.slice(start), ...articles.slice(0, start)];
+
+  return rotated.slice(0, VISIBLE_ARTICLE_LIMIT);
+}
+
+async function tryGetPersistedArticleDetail(articleId: string) {
+  try {
+    return await getPersistedArticleDetail(articleId);
+  } catch {
+    return null;
+  }
 }
 
 export function getArticlePipelineHealth() {

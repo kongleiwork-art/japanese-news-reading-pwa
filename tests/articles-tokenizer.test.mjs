@@ -98,6 +98,17 @@ test("article vocabulary returns matches in first appearance order", () => {
   );
 });
 
+test("article vocabulary removes duplicate surfaces and aliases", () => {
+  const items = chooseVocabularyItems("事故で3人がけがをしました。怪我について警察が調べています。", "文化");
+  const matchValues = items.map((item) => [item.surface, ...(item.aliases ?? [])]);
+
+  assert.equal(matchValues.filter((values) => values.includes("事故")).length, 1);
+  assert.equal(
+    matchValues.filter((values) => values.includes("けが") || values.includes("怪我")).length,
+    1,
+  );
+});
+
 test("article vocabulary caps matches at 12 words", () => {
   const text =
     "AI、技術、火事、消防、避難、地震、被害、雨、展示、国連、会議、選手、理由、写真について読みました。";

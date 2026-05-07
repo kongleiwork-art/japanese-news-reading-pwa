@@ -35,9 +35,9 @@ export function chooseVocabularyItems(
   _category: ConcreteArticleCategory,
   limit = DEFAULT_ARTICLE_VOCABULARY_LIMIT,
 ) {
-  return findVocabularyIdsInText(text, Object.values(vocabularyCatalog))
-    .map(getVocabularyById)
-    .slice(0, limit);
+  return dedupeVocabularyItems(
+    findVocabularyIdsInText(text, Object.values(vocabularyCatalog)).map(getVocabularyById),
+  ).slice(0, limit);
 }
 
 export async function chooseArticleVocabularyItems(
@@ -46,4 +46,32 @@ export async function chooseArticleVocabularyItems(
   limit = DEFAULT_ARTICLE_VOCABULARY_LIMIT,
 ) {
   return chooseVocabularyItems(text, category, limit);
+}
+
+export function dedupeVocabularyItems(words: VocabularyItem[]) {
+  const selected: VocabularyItem[] = [];
+  const selectedKeys = new Set<string>();
+
+  for (const word of words) {
+    const keys = getVocabularyIdentityKeys(word);
+
+    if (keys.some((key) => selectedKeys.has(key))) {
+      continue;
+    }
+
+    selected.push(word);
+    keys.forEach((key) => selectedKeys.add(key));
+  }
+
+  return selected;
+}
+
+function getVocabularyIdentityKeys(word: VocabularyItem) {
+  return [word.surface, ...(word.aliases ?? [])]
+    .map(normalizeVocabularyKey)
+    .filter((value) => value.length > 0);
+}
+
+function normalizeVocabularyKey(value: string) {
+  return value.trim().toLocaleLowerCase();
 }

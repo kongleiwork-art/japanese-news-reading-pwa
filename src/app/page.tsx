@@ -21,9 +21,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const category = articleCategories.includes(categoryParam as ArticleCategory)
     ? (categoryParam as ArticleCategory)
     : articleCategories[0];
+  const batchParam = typeof params.batch === "string" ? Number.parseInt(params.batch, 10) : 0;
+  const batch = Number.isFinite(batchParam) && batchParam > 0 ? batchParam : 0;
   const articles = await listArticlePreviews({
     channel: channel as ArticleChannel,
     category,
+    batch,
   });
 
   return (
@@ -31,6 +34,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <HomeScreen
         channel={channel as ArticleChannel}
         category={category}
+        batch={batch}
         articles={articles}
       />
     </AppShell>

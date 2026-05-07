@@ -9,8 +9,9 @@ export const NHK_NEWS_WEB_ARTICLE_API_BASE =
   "https://api.web.nhk/r8/t/newsarticle/na";
 export const NHK_NEWS_WEB_ARTICLE_URL_BASE = "https://news.web.nhk/newsweb/na";
 
-export const EASY_ARTICLE_LIMIT = 12;
-export const ORIGINAL_ARTICLE_LIMIT = 12;
+export const CANDIDATE_ARTICLE_LIMIT = 50;
+export const READABLE_POOL_LIMIT = 30;
+export const VISIBLE_ARTICLE_LIMIT = 12;
 
 export const ARTICLES_CACHE_TTL_MS = 10 * 60 * 1000;
 export const EASY_AUTH_COOKIE_TTL_MS = 30 * 60 * 1000;

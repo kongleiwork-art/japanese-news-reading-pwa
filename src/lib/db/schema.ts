@@ -1,0 +1,50 @@
+export const ARTICLE_SCHEMA_STATEMENTS = [
+  `CREATE TABLE IF NOT EXISTS daily_articles (
+    id TEXT NOT NULL,
+    channel TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    category TEXT NOT NULL,
+    source TEXT NOT NULL,
+    published_at_iso TEXT NOT NULL,
+    published_at TEXT NOT NULL,
+    image_type TEXT NOT NULL,
+    image_value TEXT NOT NULL,
+    image_alt TEXT NOT NULL,
+    image_style TEXT NOT NULL,
+    reading_minutes INTEGER NOT NULL,
+    tag_label TEXT NOT NULL,
+    vocabulary_ids TEXT NOT NULL,
+    vocabulary_data TEXT NOT NULL,
+    selected_rank INTEGER NOT NULL,
+    selected_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fetched_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (channel, id)
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_daily_channel_rank
+    ON daily_articles(channel, selected_rank)`,
+  `CREATE INDEX IF NOT EXISTS idx_daily_category
+    ON daily_articles(category)`,
+  `CREATE TABLE IF NOT EXISTS article_content (
+    id TEXT PRIMARY KEY,
+    channel TEXT NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    category TEXT NOT NULL,
+    source TEXT NOT NULL,
+    published_at_iso TEXT NOT NULL,
+    published_at TEXT NOT NULL,
+    image_type TEXT NOT NULL,
+    image_value TEXT NOT NULL,
+    image_alt TEXT NOT NULL,
+    image_style TEXT NOT NULL,
+    reading_minutes INTEGER NOT NULL,
+    tag_label TEXT NOT NULL,
+    content TEXT NOT NULL,
+    vocabulary_ids TEXT NOT NULL,
+    vocabulary_data TEXT NOT NULL,
+    fetched_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_content_channel
+    ON article_content(channel)`,
+] as const;

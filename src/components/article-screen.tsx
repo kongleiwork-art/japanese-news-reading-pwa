@@ -203,7 +203,7 @@ export function ArticleScreen({
           </div>
 
           {article.savedWords.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-4 grid grid-cols-2 gap-3">
               {article.savedWords.map((word) => (
                 <Link
                   key={word.id}
@@ -213,18 +213,18 @@ export function ArticleScreen({
                   })}
                   scroll={false}
                   className={cn(
-                    "rounded-[18px] border px-4 py-3 text-left shadow-[0_4px_12px_rgba(105,77,47,0.05)] transition",
+                    "flex min-h-[86px] min-w-0 flex-col justify-center rounded-[18px] border px-3 py-3 text-left shadow-[0_4px_12px_rgba(105,77,47,0.05)] transition",
                     selectedWord?.id === word.id
                       ? "border-[#6ea8b8] bg-[#79afbe] text-white"
                       : "border-[var(--line-soft)] bg-[var(--surface)] text-[var(--ink)]",
                   )}
                 >
-                  <div lang="ja" className="font-serif-jp text-[20px] font-bold">
+                  <div lang="ja" className="line-clamp-1 font-serif-jp text-[20px] font-bold leading-7">
                     {word.surface}
                   </div>
                   <div
                     className={cn(
-                      "mt-1 text-xs",
+                      "mt-1 line-clamp-2 text-[11px] leading-5",
                       selectedWord?.id === word.id ? "text-white/80" : "text-[var(--muted)]",
                     )}
                   >
