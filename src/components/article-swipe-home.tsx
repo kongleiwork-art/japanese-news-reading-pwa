@@ -8,7 +8,7 @@ import { getSavedHomeHref } from "@/components/home-return-state";
 const MIN_HORIZONTAL_DISTANCE = 72;
 const MAX_VERTICAL_DISTANCE = 56;
 
-export function ArticleSwipeHome() {
+export function ArticleSwipeHome({ returnHref }: { returnHref?: string }) {
   const router = useRouter();
   const startRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -39,7 +39,7 @@ export function ArticleSwipeHome() {
       const deltaY = touch.clientY - start.y;
 
       if (deltaX <= -MIN_HORIZONTAL_DISTANCE && Math.abs(deltaY) <= MAX_VERTICAL_DISTANCE) {
-        router.push(getSavedHomeHref("/"));
+        router.push(returnHref ?? getSavedHomeHref("/"));
       }
     }
 
@@ -50,7 +50,7 @@ export function ArticleSwipeHome() {
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [router]);
+  }, [returnHref, router]);
 
   return null;
 }

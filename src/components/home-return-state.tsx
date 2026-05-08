@@ -24,6 +24,7 @@ type HomeArticleLinkProps = {
 type ArticleBackHomeLinkProps = {
   "aria-label": string;
   className?: string;
+  returnHref?: string;
   children: ReactNode;
 };
 
@@ -64,18 +65,20 @@ export function HomeScrollRestorer() {
 export function ArticleBackHomeLink({
   "aria-label": ariaLabel,
   className,
+  returnHref,
   children,
 }: ArticleBackHomeLinkProps) {
   const router = useRouter();
+  const fallbackHref = returnHref ?? "/";
 
   return (
     <Link
-      href="/"
+      href={fallbackHref}
       aria-label={ariaLabel}
       className={className}
       onClick={(event) => {
-        const href = getSavedHomeHref("/");
-        if (href === "/") return;
+        const href = returnHref ?? getSavedHomeHref("/");
+        if (href === fallbackHref) return;
 
         event.preventDefault();
         router.push(href);

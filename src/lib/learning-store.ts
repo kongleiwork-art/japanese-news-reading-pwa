@@ -43,6 +43,9 @@ export type SavedArticle = {
   image: ArticleImage;
   imageStyle: string;
   savedAtIso: string;
+  tagLabel?: string;
+  content?: string[];
+  savedWords?: VocabularyItem[];
 };
 
 export type LearningState = {
@@ -450,7 +453,12 @@ function isSavedArticle(value: unknown): value is SavedArticle {
     typeof article.publishedAt === "string" &&
     isArticleImage(article.image) &&
     typeof article.imageStyle === "string" &&
-    typeof article.savedAtIso === "string"
+    typeof article.savedAtIso === "string" &&
+    (article.tagLabel === undefined || typeof article.tagLabel === "string") &&
+    (article.content === undefined ||
+      (Array.isArray(article.content) && article.content.every((item) => typeof item === "string"))) &&
+    (article.savedWords === undefined ||
+      (Array.isArray(article.savedWords) && article.savedWords.every(isVocabularyItem)))
   );
 }
 
@@ -497,7 +505,30 @@ function createSavedArticle(article: ArticleDetail, now: Date): SavedArticle {
     image: article.image,
     imageStyle: article.imageStyle,
     savedAtIso: now.toISOString(),
+    tagLabel: article.tagLabel,
+    content: article.content,
+    savedWords: article.savedWords,
   };
+}
+
+function isVocabularyItem(value: unknown): value is VocabularyItem {
+  if (!value || typeof value !== "object") return false;
+
+  const word = value as Partial<VocabularyItem>;
+
+  return (
+    typeof word.id === "string" &&
+    typeof word.surface === "string" &&
+    typeof word.reading === "string" &&
+    typeof word.romaji === "string" &&
+    typeof word.partOfSpeech === "string" &&
+    Array.isArray(word.meanings) &&
+    word.meanings.every((item) => typeof item === "string") &&
+    Array.isArray(word.examples) &&
+    typeof word.aiNote === "string" &&
+    typeof word.savedAt === "string" &&
+    typeof word.reviewCount === "number"
+  );
 }
 
 function isArticleImage(value: unknown): value is ArticleImage {

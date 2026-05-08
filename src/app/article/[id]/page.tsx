@@ -1,6 +1,5 @@
-import { notFound } from "next/navigation";
-
 import { ArticleScreen } from "@/components/article-screen";
+import { SavedArticleFallbackScreen } from "@/components/saved-article-fallback-screen";
 import { getArticleDetail } from "@/lib/articles";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +15,17 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
   const article = await getArticleDetail(id);
   const selectedWordId = typeof query.word === "string" ? query.word : undefined;
   const showReadings = query.readings === "1";
+  const returnHref = query.from === "saved" ? "/saved" : undefined;
 
   if (!article) {
-    notFound();
+    return (
+      <SavedArticleFallbackScreen
+        articleId={id}
+        selectedWordId={selectedWordId}
+        showReadings={showReadings}
+        returnHref={returnHref}
+      />
+    );
   }
 
   return (
@@ -26,6 +33,7 @@ export default async function ArticlePage({ params, searchParams }: ArticlePageP
       article={article}
       selectedWordId={selectedWordId}
       showReadings={showReadings}
+      returnHref={returnHref}
     />
   );
 }

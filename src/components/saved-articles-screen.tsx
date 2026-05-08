@@ -141,7 +141,7 @@ function SavedArticleCard({
 }) {
   return (
     <article className="overflow-hidden rounded-[22px] border border-[var(--line-soft)] bg-[var(--panel)] shadow-card">
-      <Link href={`/article/${article.id}`} className="block">
+      <Link href={`/article/${article.id}?from=saved`} className="block">
         <div
           aria-hidden="true"
           className="h-[92px] w-full border-b border-[var(--line-soft)]"

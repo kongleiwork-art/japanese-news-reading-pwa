@@ -17,11 +17,13 @@ import { useLearningState } from "@/lib/use-learning-state";
 type ArticleLearningControlsProps = {
   article: ArticleDetail;
   selectedWord: VocabularyItem | null;
+  returnHref?: string;
 };
 
 export function ArticleLearningControls({
   article,
   selectedWord,
+  returnHref,
 }: ArticleLearningControlsProps) {
   const learningState = useLearningState();
   const selectedWordSaved = selectedWord
@@ -38,7 +40,7 @@ export function ArticleLearningControls({
       {selectedWord ? (
         <VocabularyModal
           word={selectedWord}
-          closeHref={`/article/${article.id}`}
+          closeHref={buildArticleCloseHref(article.id, returnHref)}
           footerText={
             selectedWordSaved
               ? "这个单词已经在你的单词本里，稍后会进入复习队列。"
@@ -78,4 +80,15 @@ export function ArticleLearningControls({
       </footer>
     </>
   );
+}
+
+function buildArticleCloseHref(articleId: string, returnHref?: string) {
+  const params = new URLSearchParams();
+
+  if (returnHref === "/saved") {
+    params.set("from", "saved");
+  }
+
+  const query = params.toString();
+  return query ? `/article/${articleId}?${query}` : `/article/${articleId}`;
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
@@ -21,18 +23,21 @@ type ArticleScreenProps = {
   article: ArticleDetail;
   selectedWordId?: string;
   showReadings?: boolean;
+  returnHref?: string;
 };
 
 export function ArticleScreen({
   article,
   selectedWordId,
   showReadings = false,
+  returnHref,
 }: ArticleScreenProps) {
   const selectedWord =
     article.savedWords.find((item) => item.id === selectedWordId) ?? null;
   const readingToggleHref = buildArticleHref(article.id, {
     wordId: selectedWordId,
     showReadings: !showReadings,
+    returnHref,
   });
 
   return (
@@ -40,6 +45,7 @@ export function ArticleScreen({
       <header className="sticky top-0 z-20 flex items-center gap-3 px-5 py-3.5 backdrop-blur">
         <ArticleBackHomeLink
           aria-label="返回首页"
+          returnHref={returnHref}
           className="rounded-[18px] border border-[var(--line-soft)] glass-panel p-3 shadow-card"
         >
           <ArrowLeft className="h-5 w-5 text-[var(--muted)]" />
@@ -169,6 +175,7 @@ export function ArticleScreen({
                         article.savedWords,
                         part.wordId,
                         showReadings,
+                        returnHref,
                       )}
                       scroll={false}
                       className="inline rounded-[7px] bg-[rgba(118,174,188,0.12)] px-1 font-semibold text-[#4f8796] underline decoration-[#4f8796] decoration-2 underline-offset-[6px] transition hover:bg-[rgba(118,174,188,0.22)] hover:text-[#376b78] focus:outline-none focus:ring-2 focus:ring-[#8cb4c0]/45"
@@ -210,6 +217,7 @@ export function ArticleScreen({
                   href={buildArticleHref(article.id, {
                     wordId: word.id,
                     showReadings,
+                    returnHref,
                   })}
                   scroll={false}
                   className={cn(
@@ -241,8 +249,12 @@ export function ArticleScreen({
         </div>
       </section>
 
-      <ArticleSwipeHome />
-      <ArticleLearningControls article={article} selectedWord={selectedWord} />
+      <ArticleSwipeHome returnHref={returnHref} />
+      <ArticleLearningControls
+        article={article}
+        selectedWord={selectedWord}
+        returnHref={returnHref}
+      />
     </div>
   );
 }
@@ -267,6 +279,7 @@ function buildArticleHref(
   options: {
     wordId?: string;
     showReadings?: boolean;
+    returnHref?: string;
   } = {},
 ) {
   const params = new URLSearchParams();
@@ -277,6 +290,10 @@ function buildArticleHref(
 
   if (options.showReadings) {
     params.set("readings", "1");
+  }
+
+  if (options.returnHref === "/saved") {
+    params.set("from", "saved");
   }
 
   const query = params.toString();
@@ -292,11 +309,12 @@ function buildWordHref(
   words: VocabularyItem[],
   wordId: string,
   showReadings: boolean,
+  returnHref?: string,
 ) {
   const word = words.find((item) => item.id === wordId);
   return word
-    ? buildArticleHref(articleId, { wordId: word.id, showReadings })
-    : buildArticleHref(articleId, { showReadings });
+    ? buildArticleHref(articleId, { wordId: word.id, showReadings, returnHref })
+    : buildArticleHref(articleId, { showReadings, returnHref });
 }
 
 function VocabularyRuby({

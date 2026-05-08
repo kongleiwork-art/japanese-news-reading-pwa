@@ -9,10 +9,16 @@ type CacheArticleMessage = {
     articleUrl: string;
     apiUrl: string;
     imageUrl?: string;
+    pinned?: boolean;
   };
 };
 
-export function cacheArticleForOffline(article: ArticleDetail) {
+export function cacheArticleForOffline(
+  article: ArticleDetail,
+  options: {
+    pinned?: boolean;
+  } = {},
+) {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
     return;
   }
@@ -25,6 +31,7 @@ export function cacheArticleForOffline(article: ArticleDetail) {
       articleUrl: `/article/${article.id}`,
       apiUrl: `/api/articles/${article.id}`,
       imageUrl,
+      pinned: options.pinned,
     },
   };
 

@@ -4,6 +4,7 @@ import { Bookmark, Check } from "lucide-react";
 
 import type { ArticleDetail } from "@/lib/articles";
 import { isArticleSaved, toggleSavedArticle } from "@/lib/learning-store";
+import { cacheArticleForOffline } from "@/lib/offline-article-cache";
 import { useLearningState } from "@/lib/use-learning-state";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +19,13 @@ export function ArticleSaveButton({ article }: ArticleSaveButtonProps) {
   return (
     <button
       type="button"
-      onClick={() => toggleSavedArticle(article)}
+      onClick={() => {
+        if (!saved) {
+          cacheArticleForOffline(article, { pinned: true });
+        }
+
+        toggleSavedArticle(article);
+      }}
       aria-label={saved ? "取消收藏文章" : "收藏文章"}
       title={saved ? "已收藏" : "收藏文章"}
       className={cn(
