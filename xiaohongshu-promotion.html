@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>好物分享 | 小红书风格推广</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #FF6B8A;
+            --soft-coral: #FFB5A7;
+            --warm-peach: #FCD5CE;
+            --cream: #FFF5F3;
+            --deep-rose: #D84A6A;
+            --text-dark: #2D2D2D;
+            --text-gray: #666666;
+            --gradient-warm: linear-gradient(135deg, #FFB5A7 0%, #FF6B8A 50%, #D84A6A 100%);
+            --gradient-soft: linear-gradient(180deg, #FFF5F3 0%, #FFE5DC 100%);
+            --shadow-soft: 0 4px 20px rgba(255, 107, 138, 0.15);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient-soft);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Header Navigation */
+        .nav-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 107, 138, 0.1);
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 22px;
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: white;
+            margin: 16px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Cover Image Section */
+        .cover-section {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            overflow: hidden;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .cover-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+        }
+
+        .cover-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--gradient-warm);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 107, 138, 0.4);
+        }
+
+        .cover-actions {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Author Info */
+        .author-section {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--warm-peach);
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .vip-badge {
+            width: 16px;
+            height: 16px;
+        }
+
+        .author-desc {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .follow-btn {
+            background: var(--gradient-warm);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .follow-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 107, 138, 0.4);
+        }
+
+        /* Title Section */
+        .title-section {
+            padding: 0 20px 20px;
+        }
+
+        .main-title {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 22px;
+            line-height: 1.5;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .sub-title {
+            font-size: 14px;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            padding: 16px 20px;
+            border-top: 1px solid #f5f5f5;
+            border-bottom: 1px solid #f5f5f5;
+            background: #FAFAFA;
+        }
+
+        .stat-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .stat-item:not(:last-child) {
+            border-right: 1px solid #eee;
+        }
+
+        .stat-icon {
+            font-size: 16px;
+        }
+
+        /* Content Section */
+        .content-section {
+            padding: 24px 20px;
+        }
+
+        .content-intro {
+            font-size: 15px;
+            line-height: 2;
+            color: var(--text-dark);
+            margin-bottom: 24px;
+        }
+
+        .highlight-text {
+            background: linear-gradient(120deg, #FFE5DC 0%, #FFB5A7 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Feature Cards */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #FFF9F7 0%, #FFF5F3 100%);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            border: 1px solid rgba(255, 107, 138, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-warm);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            font-size: 15px;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .feature-content p {
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            background: var(--gradient-warm);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-section::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: Georgia, serif;
+        }
+
+        .quote-text {
+            color: white;
+            font-size: 15px;
+            line-height: 1.9;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            margin-top: 12px;
+            text-align: right;
+        }
+
+        /* Image Gallery */
+        .gallery-section {
+            margin: 28px 0;
+        }
+
+        .gallery-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item:first-child {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: #FFFBF9;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 1px dashed var(--soft-coral);
+        }
+
+        .tips-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--deep-rose);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.7;
+        }
+
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .tip-number {
+            width: 22px;
+            height: 22px;
+            background: var(--gradient-warm);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Product Link */
+        .product-link {
+            display: block;
+            background: var(--gradient-warm);
+            color: white;
+            text-decoration: none;
+            padding: 16px 24px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 28px 20px;
+            box-shadow: 0 8px 25px rgba(255, 107, 138, 0.35);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .product-link:hover::before {
+            left: 100%;
+        }
+
+        .product-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 107, 138, 0.45);
+        }
+
+        /* Tags Section */
+        .tags-section {
+            padding: 0 20px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #FFF0ED;
+            color: var(--deep-rose);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: var(--soft-coral);
+            color: white;
+        }
+
+        /* Interaction Bar */
+        .interaction-bar {
+            display: flex;
+            padding: 16px 20px;
+            border-top: 1px solid #f5f5f5;
+            background: #FAFAFA;
+        }
+
+        .interaction-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .interaction-item:hover {
+            background: rgba(255, 107, 138, 0.1);
+            color: var(--primary-pink);
+        }
+
+        .interaction-item.liked {
+            color: var(--primary-pink);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            padding: 20px;
+        }
+
+        .comments-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-author {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .comment-text {
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.6;
+            margin-top: 4px;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px 20px;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .footer-brand {
+            font-family: 'ZCOOL XiaoWei', serif;
+            font-size: 16px;
+            background: var(--gradient-warm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        /* Floating Action */
+        .floating-actions {
+            position: fixed;
+            right: 20px;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 99;
+        }
+
+        .float-btn {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .float-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .float-btn.primary {
+            background: var(--gradient-warm);
+            color: white;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        .heart-animation {
+            animation: heartBeat 0.8s ease-in-out;
+        }
+
+        /* Loading shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Decorative elements */
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--soft-coral);
+            border-radius: 50%;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Header -->
+        <nav class="nav-header">
+            <div class="nav-content">
+                <div class="logo">小红书</div>
+                <div class="nav-icons">
+                    <div class="nav-icon">🔍</div>
+                    <div class="nav-icon">✏️</div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Card -->
+        <article class="main-card">
+            <!-- Cover Image -->
+            <div class="cover-section">
+                <img class="cover-image" 
+                     src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=elegant%20skincare%20products%20arranged%20beautifully%20on%20marble%20surface,%20soft%20natural%20lighting,%20rose%20gold%20and%20peach%20tones,%20minimalist%20aesthetic,%20luxury%20beauty%20flat%20lay%20photography&image_size=portrait_4_3" 
+                     alt="精致护肤产品">
+                <div class="cover-overlay"></div>
+                <div class="cover-badge">✨ 今日推荐</div>
+                <div class="cover-actions">
+                    <div class="action-btn">❤️</div>
+                    <div class="action-btn">📖</div>
+                    <div class="action-btn">🚀</div>
+                </div>
+            </div>
+
+            <!-- Author Info -->
+            <div class="author-section">
+                <img class="author-avatar" 
+                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" 
+                     alt="博主头像">
+                <div class="author-info">
+                    <div class="author-name">
+                        时尚种草酱
+                        <img class="vip-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD700'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E" alt="VIP">
+                    </div>
+                    <div class="author-desc">百万博主 · 专注好物分享</div>
+                </div>
+                <button class="follow-btn">+ 关注</button>
+            </div>
+
+            <!-- Title -->
+            <div class="title-section">
+                <h1 class="main-title">姐妹们！这款护肤神器真的绝绝子😭用了皮肤嫩到发光</h1>
+                <p class="sub-title">最近挖到的宝藏护肤品，皮肤状态直接next level！</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-icon">👀</span>
+                    <span>12.8万</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">❤️</span>
+                    <span>2.3万</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⭐</span>
+                    <span>5.0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">💬</span>
+                    <span>3864</span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content-section">
+                <p class="content-intro">
+                    💕 各位小仙女们晚上好呀～我是你们的种草酱！
+                    <br><br>
+                    今天必须来跟你们分享一款我最近<span class="highlight-text">疯狂爱用</span>的护肤好物！
+                    作为一个试过无数护肤品的博主，这款真的让我惊艳到说不出话😱
+                    <br><br>
+                    先说说我的肤质：混干皮，T区容易出油但脸颊又有点干，熬夜党，
+                    皮肤经常暗沉发黄...相信很多姐妹跟我一样有这些困扰吧🙋‍♀️
+                </p>
+
+                <!-- Feature List -->
+                <div class="feature-list">
+                    <div class="feature-card">
+                        <div class="feature-icon">💧</div>
+                        <div class="feature-content">
+                            <h4>深层补水保湿</h4>
+                            <p>添加玻尿酸和神经酰胺成分，24小时持久锁水，皮肤水润一整天</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✨</div>
+                        <div class="feature-content">
+                            <h4>提亮肤色</h4>
+                            <p>含有烟酰胺和VC衍生物，坚持使用两周明显感觉肤色提亮一个度</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌸</div>
+                        <div class="feature-content">
+                            <h4>敏感肌友好</h4>
+                            <p>0酒精0香精，经过 dermatologically 测试，敏感肌也可以放心使用</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote -->
+                <div class="quote-section">
+                    <p class="quote-text">
+                        用了一个月，室友问我是不是偷偷去做了医美！
+                        皮肤真的从内而外透出光泽感，连前男友都后悔了哈哈哈～
+                    </p>
+                    <div class="quote-author">—— 来自3万+真实用户评价</div>
+                </div>
+
+                <!-- Image Gallery -->
+                <div class="gallery-section">
+                    <div class="gallery-title">📸 我的实拍图</div>
+                    <div class="gallery-grid">
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=600&h=600&fit=crop" alt="产品图">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1570194065650-d99fb4d6a673?w=300&h=300&fit=crop" alt="细节图">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=300&h=300&fit=crop" alt="使用图">
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=300&h=300&fit=crop" alt="效果图">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="tips-section">
+                    <div class="tips-title">💡 我的使用小技巧</div>
+                    <div class="tip-item">
+                        <span class="tip-number">1</span>
+                        <span>洁面后取适量精华，轻轻按压全脸至吸收</span>
+                    </div>
+                    <div class="tip-item">
+                        <span class="tip-number">2</span>
+                        <span>重点涂抹在暗沉和需要提亮的部位</span>
+                    </div>
+                    <div class="tip-item">
+                        <span class="tip-number">3</span>
+                        <span>配合热敷或美容仪效果翻倍！</span>
+                    </div>
+                </div>
+
+                <p class="content-intro">
+                    🌟 总结一下：
+                    <br>
+                    这款产品真的是我今年用过最惊喜的！<span class="highlight-text">性价比超高</span>，
+                    学生党也可以冲！墙裂推荐给所有想要改善肌肤状态的姐妹们～
+                    <br><br>
+                    答应我，一定要试试好吗！不好用来打我😂
+                </p>
+            </div>
+
+            <!-- Product Link -->
+            <a href="#" class="product-link">
+                🔗  点击获取同款好物 
+            </a>
+
+            <!-- Tags -->
+            <div class="tags-section">
+                <a href="#" class="tag">#护肤好物</a>
+                <a href="#" class="tag">#美白提亮</a>
+                <a href="#" class="tag">#敏感肌可用</a>
+                <a href="#" class="tag">#学生党必备</a>
+                <a href="#" class="tag">#种草清单</a>
+                <a href="#" class="tag">#今日好物</a>
+            </div>
+
+            <!-- Interaction Bar -->
+            <div class="interaction-bar">
+                <div class="interaction-item">
+                    <span>👍</span>
+                    <span>2.3万</span>
+                </div>
+                <div class="interaction-item">
+                    <span>⭐</span>
+                    <span>收藏</span>
+                </div>
+                <div class="interaction-item">
+                    <span>📤</span>
+                    <span>分享</span>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="comments-section">
+                <div class="comments-title">💬 评论 (128)</div>
+                
+                <div class="comment-item">
+                    <img class="comment-avatar" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="comment-content">
+                        <div class="comment-author">爱美的糖糖</div>
+                        <div class="comment-text">买了买了！期待效果～</div>
+                        <div class="comment-actions">
+                            <span>回复</span>
+                            <span>3小时前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <img class="comment-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="comment-content">
+                        <div class="comment-author">护肤小达人</div>
+                        <div class="comment-text">这款我也在用！真的好用，楼主眼光绝了👍</div>
+                        <div class="comment-actions">
+                            <span>回复</span>
+                            <span>5小时前</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <img class="comment-avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face" alt="">
+                    <div class="comment-content">
+                        <div class="comment-author">小美眉</div>
+                        <div class="comment-text">请问适合油皮吗？</div>
+                        <div class="comment-actions">
+                            <span>回复</span>
+                            <span>昨天</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-brand">小红书</div>
+            <p>标记你的生活</p>
+        </footer>
+    </div>
+
+    <!-- Floating Actions -->
+    <div class="floating-actions">
+        <a href="#" class="float-btn primary">⬆️</a>
+    </div>
+
+    <script>
+        // Interactive heart animation
+        document.querySelector('.action-btn').addEventListener('click', function() {
+            this.classList.add('heart-animation');
+            setTimeout(() => this.classList.remove('heart-animation'), 800);
+        });
+
+        // Like button
+        document.querySelectorAll('.interaction-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.querySelector('span').textContent === '👍') {
+                    this.classList.toggle('liked');
+                }
+            });
+        });
+
+        // Scroll to top
+        document.querySelector('.float-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Gallery image click effect
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            img.addEventListener('click', function() {
+                this.style.transform = this.style.transform === 'scale(1.1)' ? 'scale(1)' : 'scale(1.1)';
+            });
+        });
+    </script>
+</body>
+</html>
