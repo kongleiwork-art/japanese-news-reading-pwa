@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轻读日语 - 小红书推广素材</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #faf6f0;
+            --warm-white: #fffdfa;
+            --soft-cream: #f5efe6;
+            --ink: #2c2416;
+            --ink-light: #4a3f2f;
+            --muted: #8b7355;
+            --accent: #c9735b;
+            --accent-soft: #e8a590;
+            --accent-pink: #f4a4a0;
+            --sakura: #f8b4b4;
+            --gold: #d4a574;
+            --blue: #76b4bc;
+            --panel: rgba(255, 252, 246, 0.95);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, var(--warm-white) 0%, var(--cream) 100%);
+            border-bottom: 1px solid rgba(200, 180, 150, 0.3);
+        }
+
+        .header h1 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--ink);
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .header .subtitle {
+            font-size: 1.25rem;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--gold);
+            background: var(--warm-white);
+            color: var(--ink);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Section Styling */
+        .section {
+            margin: 4rem 0;
+            padding: 3rem;
+            background: var(--warm-white);
+            border-radius: 24px;
+            box-shadow: 0 4px 24px rgba(44, 36, 22, 0.08);
+        }
+
+        .section-title {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2.5rem;
+            color: var(--ink);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .image-card {
+            background: var(--warm-white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(44, 36, 22, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .image-card .caption {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .image-card .caption h3 {
+            font-size: 1.25rem;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .image-card .caption p {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        /* Post Card */
+        .post {
+            background: linear-gradient(135deg, var(--warm-white) 0%, var(--soft-cream) 100%);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(200, 180, 150, 0.2);
+        }
+
+        .post-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px dashed var(--gold);
+        }
+
+        .post-title {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2rem;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .post-tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: var(--accent-soft);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 2;
+        }
+
+        .post-content h2 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 2rem 0 1rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--gold);
+        }
+
+        .post-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .post-content li {
+            margin: 0.75rem 0;
+            color: var(--ink-light);
+        }
+
+        .highlight {
+            background: linear-gradient(180deg, transparent 60%, var(--sakura) 60%);
+            padding: 0 0.25rem;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin: 0 0.25rem;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--cream);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: var(--warm-white);
+            box-shadow: 0 8px 32px rgba(44, 36, 22, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            color: var(--ink);
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        /* Image Grid */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item.large {
+            grid-column: span 2;
+            aspect-ratio: 16/9;
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 1.5rem;
+            background: linear-gradient(transparent, rgba(44, 36, 22, 0.8));
+            color: white;
+        }
+
+        .image-overlay h4 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-overlay p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* Tips Section */
+        .tips {
+            background: linear-gradient(135deg, #fef9f3 0%, #fff5eb 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+        }
+
+        .tips h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .tips ul {
+            list-style: none;
+        }
+
+        .tips li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .tips li::before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        /* CTA Section */
+        .cta {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-pink) 100%);
+            border-radius: 24px;
+            color: white;
+            margin: 4rem 0;
+        }
+
+        .cta h2 {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+        }
+
+        /* Download Buttons */
+        .download-btns {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: white;
+            color: var(--accent);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+            font-size: 0.875rem;
+            border-top: 1px solid rgba(200, 180, 150, 0.3);
+            margin-top: 4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section {
+                padding: 2rem 1.5rem;
+            }
+
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .image-item.large {
+                grid-column: span 1;
+            }
+
+            .post {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav {
+                display: none;
+            }
+
+            .section {
+                break-inside: avoid;
+                margin: 2rem 0;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Decorative Elements */
+        .sakura {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .sakura-1 {
+            top: 10%;
+            left: 5%;
+            font-size: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .sakura-2 {
+            top: 30%;
+            right: 8%;
+            font-size: 1.5rem;
+            animation: float 8s ease-in-out infinite 1s;
+        }
+
+        .sakura-3 {
+            bottom: 20%;
+            left: 10%;
+            font-size: 2.5rem;
+            animation: float 7s ease-in-out infinite 0.5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative Sakura -->
+    <div class="sakura sakura-1">🌸</div>
+    <div class="sakura sakura-2">🌸</div>
+    <div class="sakura sakura-3">🌸</div>
+
+    <!-- Header -->
+    <header class="header">
+        <h1>轻读日语</h1>
+        <p class="subtitle">从新闻进入真实日语世界</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="#features" class="nav-btn">✨ 核心功能</a>
+        <a href="#post1" class="nav-btn">📝 推广文案一</a>
+        <a href="#post2" class="nav-btn">📝 推广文案二</a>
+        <a href="#images" class="nav-btn">🖼️ 宣传图片</a>
+        <a href="#tips" class="nav-btn">💡 发布建议</a>
+    </nav>
+
+    <div class="container">
+        <!-- Features Section -->
+        <section id="features" class="section">
+            <div class="section-label">APP FEATURES</div>
+            <h2 class="section-title">为什么选择轻读日语？</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📰</div>
+                    <h3>真实新闻语境</h3>
+                    <p>不是枯燥的教材！每天推送日本真实新闻，在语境中学习</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>双频道切换</h3>
+                    <p>简单日语 / 实时新闻，根据水平自由切换</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>智能词汇卡片</h3>
+                    <p>点词即查，AI讲解，支持保存到单词本</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>科学复习机制</h3>
+                    <p>艾宾浩斯遗忘曲线，自动安排复习计划</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>日式美学设计</h3>
+                    <p>精美的和风UI，阅读体验满分</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>PWA轻应用</h3>
+                    <p>无需下载，即开即用，支持离线阅读</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Post 1 -->
+        <section id="post1" class="section">
+            <div class="section-label">XIAOHONGSHU POST 1</div>
+            <h2 class="section-title">推广文案（一）：轻松有趣风格</h2>
+
+            <div class="post">
+                <div class="post-header">
+                    <h3 class="post-title">轻松学日语的神仙App！告别死记硬背 ✨</h3>
+                    <div class="post-tags">
+                        <span class="tag">#日语学习</span>
+                        <span class="tag">#日语APP推荐</span>
+                        <span class="tag">#学日语</span>
+                        <span class="tag">#轻读日语</span>
+                        <span class="tag">#日语轻松学</span>
+                    </div>
+                </div>
+
+                <div class="post-content">
+                    <p class="emoji">👋</p><p>姐妹们今天分享一个我最近挖到的学日语宝藏！</p>
+
+                    <p>你们有没有这种情况：</p>
+                    <ul>
+                        <li>买了N本日语书📚，翻开永远停留在第一课</li>
+                        <li>五十音背了忘、忘了背，无限循环</li>
+                        <li>语法太枯燥，学着学着就睡着了 😴</li>
+                    </ul>
+
+                    <p>直到我发现这个 <span class="highlight">轻读日语</span>！真的绝绝子 👍</p>
+
+                    <h2>🌟 为什么我强推它？</h2>
+
+                    <h2>1️⃣ 读新闻就能学日语</h2>
+                    <p>不是那种假大空的教材内容！每天推送真实日语新闻，政治/科技/娱乐/生活...你感兴趣什么就读什么！在真实语境里学日语，效率拉满 💯</p>
+
+                    <h2>2️⃣ 双频道切换</h2>
+                    <p>📖「简单日语」→ 适合初学者，NHK Easy新闻<br>
+                    📰「实时新闻」→ 进阶选手，挑战真实日本媒体</p>
+                    <p>根据水平自由切换，太人性化了！</p>
+
+                    <h2>3️⃣ 单词本超好用</h2>
+                    <ul>
+                        <li>读文章时随手点词，弹出精美词汇卡</li>
+                        <li>日语/罗马音/中文释义全都有</li>
+                        <li>还有 <span class="highlight">AI讲解</span> 帮你理解用法</li>
+                        <li>保存到单词本，按文章分组超清晰</li>
+                    </ul>
+
+                    <h2>4️⃣ 科学复习不遗忘</h2>
+                    <p>基于艾宾浩斯遗忘曲线设计！学过的词会自动安排复习，再也不怕边学边忘 😭</p>
+
+                    <h2>5️⃣ 日式美学设计</h2>
+                    <p>这界面也太好看了吧！暖色调+日式衬线字体，阅读体验满分 📱</p>
+
+                    <h2>📌 我的使用感受</h2>
+
+                    <p>坚持用了一周多，已经积累了几十个新闻高频词！比背单词书有意思多了，而且都是 <span class="highlight">真正会用到的词</span>！</p>
+
+                    <p>零基础友好，但进阶选手也能用～真心推荐给所有想学日语的姐妹！</p>
+
+                    <p><strong>👇 冲冲冲！学日语从今天开始！</strong></p>
+                </div>
+
+                <div class="tips">
+                    <h3>💡 互动引导建议</h3>
+                    <ul>
+                        <li>文末提问："你学日语多久了？遇到最大的困难是什么？"</li>
+                        <li>引导评论："评论区抽3个姐妹送App会员！"</li>
+                        <li>系列引导："想看App详细功能测评的扣1！"</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Post 2 -->
+        <section id="post2" class="section">
+            <div class="section-label">XIAOHONGSHU POST 2</div>
+            <h2 class="section-title">推广文案（二）：高效速成风格</h2>
+
+            <div class="post">
+                <div class="post-header">
+                    <h3 class="post-title">日语学习｜每天10分钟，轻松上N3！</h3>
+                    <div class="post-tags">
+                        <span class="tag">#日语N3</span>
+                        <span class="tag">#自学日语</span>
+                        <span class="tag">#日语入门</span>
+                        <span class="tag">#留学日语</span>
+                        <span class="tag">#轻读日语</span>
+                    </div>
+                </div>
+
+                <div class="post-content">
+                    <p class="emoji">🙋‍♀️</p><p>学日语的姐妹看过来！</p>
+
+                    <p>你们知道N3需要多少词汇量吗？<span class="highlight">3000词</span>！😱</p>
+
+                    <p>按传统方法背，你可能需要：</p>
+                    <ul>
+                        <li>啃完《大家的日语》📕</li>
+                        <li>刷完红蓝宝书 📗</li>
+                        <li>每天打卡背50个词 💪</li>
+                    </ul>
+
+                    <p><strong>太痛苦了对不对！</strong></p>
+
+                    <p>但这个App告诉你：<span class="highlight">不用背！边读新闻边学！</span></p>
+
+                    <h2>✨ 学习方式革命</h2>
+
+                    <p>每天10分钟读一篇日语新闻 ✨<br>
+                    遇到的生词自动收录单词本 ✨<br>
+                    AI讲解+真实例句 ✨<br>
+                    科学复习对抗遗忘 ✨</p>
+
+                    <h2>📈 效果对比</h2>
+
+                    <p><strong>一个月下来：</strong></p>
+                    <ul>
+                        <li>词汇量蹭蹭涨 📈</li>
+                        <li>阅读理解能力提升 📖</li>
+                        <li>语感明显增强 🗣️</li>
+                    </ul>
+
+                    <p><strong>关键是！一点都不累！</strong></p>
+
+                    <p>因为你在 <span class="highlight">看新闻</span>，不是 <span class="highlight">背单词</span>！</p>
+
+                    <p>这才是可持续的日语学习方式啊姐妹们！</p>
+
+                    <h2>🎯 适用人群</h2>
+                    <ul>
+                        <li>🌱 零基础想入门日语</li>
+                        <li>📚 在备考N5/N4/N3</li>
+                        <li>🎬 喜欢日本文化/动漫/综艺</li>
+                        <li>💼 想提升职场竞争力</li>
+                    </ul>
+
+                    <p><strong>👇 心动不如行动！</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Gallery -->
+        <section id="images" class="section">
+            <div class="section-label">MARKETING IMAGES</div>
+            <h2 class="section-title">宣传图片素材</h2>
+
+            <div class="image-grid">
+                <div class="image-item large">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A%20beautiful%20iPhone%20mockup%20showing%20a%20Japanese%20learning%20app%20interface%20with%20warm%20cream%20beige%20tones.%20The%20screen%20displays%20Japanese%20news%20article%20cards%20with%20elegant%20typography.%20Soft%20watercolor-style%20cherry%20blossom%20decorations%20in%20corners.%20Clean%20minimalist%20Japanese%20aesthetic.%20Professional%20product%20photography%20style%20with%20soft%20natural%20lighting.%20The%20design%20feels%20cozy%20sophisticated%20and%20inviting.%20Include%20subtle%20shadows%20and%20depth%20for%203D%20effect.%20Warm%20golden%20hour%20lighting.%20White%20marble%20desk%20surface%20background.&image_size=landscape_4_3" alt="轻读日语App界面展示">
+                    <div class="image-overlay">
+                        <h4>📱 App界面展示</h4>
+                        <p>日式暖色调设计，新闻阅读体验</p>
+                    </div>
+                </div>
+
+                <div class="image-item">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A%20beautifully%20designed%20Japanese%20vocabulary%20flashcard%20modal%20on%20a%20cream%20background.%20Large%20Japanese%20kanji%20character%20displayed%20prominently%20in%20elegant%20serif%20font.%20Below%20shows%20hiragana%20reading%20and%20Chinese%20meanings.%20AI%20explanation%20section%20with%20sparkle%20icon.%20Soft%20pastel%20color%20palette%20with%20warm%20undertones.%20Clean%20modern%20Japanese%20UI%20design%20similar%20to%20premium%20language%20apps.%20Professional%20flat%20illustration%20style%20with%20subtle%20gradients%20and%20soft%20shadows.%20Warm%20lighting.%20Centered%20composition.%20White%20and%20cream%20background.&image_size=portrait_4_3" alt="词汇卡片展示">
+                    <div class="image-overlay">
+                        <h4>📚 词汇卡片</h4>
+                        <p>精美UI设计，AI智能讲解</p>
+                    </div>
+                </div>
+
+                <div class="image-item">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A%20young%20Asian%20woman%20in%20her%2020s%20studying%20Japanese%20on%20her%20phone%20at%20a%20cozy%20Japanese-style%20cafe.%20Warm%20afternoon%20sunlight%20streaming%20through%20windows.%20Soft%20bokeh%20background%20with%20potted%20plants.%20A%20latte%20with%20 latte%20art%20beside%20her.%20She%20has%20a%20focused%20but%20relaxed%20expression.%20Casual%20trendy%20clothes.%20Phone%20screen%20shows%20elegant%20Japanese%20text.%20Film%20grain%20effect.%20Warm%20golden%20hour%20tones.%20Lifestyle%20photography%20style.%20Aspirational%20and%20relatable.%20Natural%20lighting.%20Candid%20moment%20feeling.%20Shot%20on%20iPhone%20aesthetic.&image_size=portrait_4_3" alt="学习场景">
+                    <div class="image-overlay">
+                        <h4>☕ 学习场景</h4>
+                        <p>咖啡厅里的日语时光</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-grid">
+                <div class="image-item">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A%20beautifully%20organized%20Japanese%20vocabulary%20notebook%20interface%20on%20a%20white%20cream%20background.%20Shows%20multiple%20collapsible%20word%20group%20cards%20with%20Japanese%20newspaper%20article%20titles%20as%20headers.%20Each%20word%20card%20displays%20large%20kanji%20vocabulary%20with%20colored%20level%20tags.%20Soft%20shadows%20create%20depth.%20Clean%20modern%20UI%20design%20with%20Japanese%20aesthetics.%20Includes%20review%20count%20badges%20and%20date%20stamps.%20Premium%20language%20learning%20app%20feel.%20Professional%20UI%20mockup%20style.%20Flat%20design%20with%20subtle%20gradients.%20Warm%20white%20background.%20Studio%20lighting.&image_size=portrait_4_3" alt="单词本界面">
+                    <div class="image-overlay">
+                        <h4>🗂️ 单词本</h4>
+                        <p>按文章分组，科学复习</p>
+                    </div>
+                </div>
+
+                <div class="image-item">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=A%20split%20comparison%20image%3A%20Left%20side%20shows%20traditional%20Japanese%20study%20method%20-%20cluttered%20desk%20with%20textbooks%2C%20boring%20vocabulary%20notebooks%2C%20a%20frustrated%20young%20woman%20frowning%20at%20books.%20Right%20side%20shows%20modern%20app-based%20learning%20-%20the%20same%20woman%20happily%20reading%20on%20her%20phone%20at%20a%20stylish%20cafe%20with%20coffee%20and%20natural%20light.%20Center%20has%20a%20curved%20arrow%20transforming%20from%20frustrated%20to%20happy%20expression.%20High%20contrast%20between%20dark%20dull%20left%20and%20bright%20warm%20right.%20Modern%20flat%20illustration%20style%20with%20bold%20colors.%20Clear%20visual%20storytelling.%20Inspirational%20mood.%20Digital%20art%20style.%20Warm%20color%20palette%20on%20right%20side.&image_size=portrait_4_3" alt="学习对比">
+                    <div class="image-overlay">
+                        <h4>🔄 效果对比</h4>
+                        <p>传统学习 vs 轻松阅读</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tips Section -->
+        <section id="tips" class="section">
+            <div class="section-label">PUBLISHING TIPS</div>
+            <h2 class="section-title">发布建议</h2>
+
+            <div class="tips" style="background: linear-gradient(135deg, #fef9f3 0%, #fff5eb 100%); padding: 2rem; border-radius: 16px;">
+                <h3>🏷️ 推荐标签</h3>
+                <p style="margin-bottom: 1rem;">#日语学习 #日语APP推荐 #学日语 #日语轻松学 #日语N3 #日语单词 #日语新闻 #日语学习app #自学日语 #日语入门 #留学日语 #日语听力 #轻读日语</p>
+
+                <h3>⏰ 最佳发布时间</h3>
+                <ul>
+                    <li>早上 7:00-9:00（通勤时间）</li>
+                    <li>中午 12:00-13:00（午休时间）</li>
+                    <li>晚上 20:00-22:00（黄金时间）</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">🎯 互动引导技巧</h3>
+                <ul>
+                    <li>结尾提问增加评论率</li>
+                    <li>系列内容培养粉丝粘性</li>
+                    <li>真实用户体验分享更有说服力</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <h2>开始你的日语学习之旅</h2>
+            <p>每天10分钟，让学日语变成一件轻松愉快的事</p>
+            <div class="download-btns">
+                <a href="#" class="download-btn">
+                    📱 App Store
+                </a>
+                <a href="#" class="download-btn">
+                    🤖 Google Play
+                </a>
+                <a href="#" class="download-btn">
+                    🌐 Web版
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>轻读日语 - 从新闻进入真实日语世界</p>
+        <p style="margin-top: 0.5rem;">Japanese News Reading PWA</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section, .feature-card, .image-card').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
