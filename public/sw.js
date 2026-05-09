@@ -1,4 +1,4 @@
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC_CACHE = `qingdu-static-${VERSION}`;
 const ARTICLE_CACHE = `qingdu-articles-${VERSION}`;
 const RUNTIME_CACHE = `qingdu-runtime-${VERSION}`;
@@ -318,7 +318,12 @@ function runtimeCacheKey(request) {
 }
 
 function isHomePageRequest(request, url) {
-  return url.pathname === "/" && request.mode === "navigate" && isHtmlRequest(request);
+  return (
+    url.pathname === "/" &&
+    url.search === "" &&
+    request.mode === "navigate" &&
+    isHtmlRequest(request)
+  );
 }
 
 function isHtmlRequest(request) {

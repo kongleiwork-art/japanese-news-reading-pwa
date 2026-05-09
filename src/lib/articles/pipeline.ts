@@ -3,6 +3,7 @@ import {
   getPersistedArticleDetail,
   listPersistedArticles,
 } from "../db/articles.ts";
+import { isArticleDatabaseConfigured } from "../db/client.ts";
 import {
   getEasyCookieCacheState,
   loadEasyArticles,
@@ -162,6 +163,10 @@ async function getNormalizedArticles(filters?: {
   const persistedArticles = await tryListPersistedArticles({ channel: filters?.channel });
   if (persistedArticles && persistedArticles.length > 0) {
     return persistedArticles;
+  }
+
+  if (persistedArticles && isArticleDatabaseConfigured()) {
+    return [];
   }
 
   const requestedChannels = filters?.channel

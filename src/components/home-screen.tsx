@@ -29,6 +29,17 @@ const channelConfig: Record<ArticleChannel, { label: string }> = {
   },
 };
 
+const emptyState: Record<ArticleChannel, { title: string; body: string }> = {
+  easy: {
+    title: "\u6682\u65e0\u7b80\u5355\u65e5\u8bed\u65b0\u95fb",
+    body: "\u65b0\u95fb\u6293\u53d6\u5b8c\u6210\u540e\uff0c\u8fd9\u91cc\u4f1a\u81ea\u52a8\u663e\u793a\u9002\u5408\u8f7b\u91cf\u9605\u8bfb\u7684\u6587\u7ae0\u3002",
+  },
+  original: {
+    title: "\u6682\u65e0\u5b9e\u65f6\u65b0\u95fb",
+    body: "\u8bf7\u5148\u8fd0\u884c GitHub Actions \u91cc\u7684 Crawl and Save News\uff0c\u6216\u7a0d\u540e\u7b49\u5b9a\u65f6\u6293\u53d6\u5199\u5165 Turso\u3002",
+  },
+};
+
 const categoryItems: { value: ArticleCategory; label: string }[] = articleCategories.map(
   (category) => ({
     value: category,
@@ -152,6 +163,17 @@ export function HomeScreen({ channel, category, batch, articles }: HomeScreenPro
             换一批
           </Link>
         </div>
+
+        {filtered.length === 0 ? (
+          <div className="mt-4 rounded-[22px] border border-[var(--line-soft)] bg-[var(--panel)] p-5 shadow-card">
+            <h2 className="text-base font-semibold text-[var(--ink)]">
+              {emptyState[channel].title}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              {emptyState[channel].body}
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-4 space-y-3.5">
           {filtered.map((article) => (
