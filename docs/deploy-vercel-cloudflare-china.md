@@ -39,6 +39,8 @@ ARTICLES_SQLITE_CACHE_PATH=/tmp/articles.sqlite
 
 When `ARTICLES_SQLITE_CACHE_PATH` is not set, the app automatically uses `/tmp/articles.sqlite` on Vercel and `.cache/articles.sqlite` locally.
 
+The Vercel runtime reads article lists and details from Turso only. If the database is empty or unreachable, pages show an empty state quickly instead of crawling live news sources during a user request.
+
 ## GitHub Actions
 
 Keep these repository secrets for the crawler workflow:
@@ -49,6 +51,8 @@ TURSO_AUTH_TOKEN
 ```
 
 The crawler remains in `.github/workflows/crawl.yml` and runs on Node.js 22. The Tencent Cloud deployment workflow is manual-only after this migration, so pushes to `main` should no longer deploy to Tencent Cloud.
+
+After creating a new Turso database, run `Crawl and Save News` manually once from GitHub Actions to initialize the schema and insert the first article set.
 
 ## Domain And Cloudflare China
 

@@ -69,6 +69,10 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+function shouldUsePersistedArticlesOnly() {
+  return process.env.VERCEL === "1" || process.env.ARTICLES_PERSISTED_ONLY === "1";
+}
+
 function beginSourceLoad(source: ArticleChannel) {
   sourceHealth[source] = {
     ...sourceHealth[source],
@@ -163,6 +167,10 @@ async function getNormalizedArticles(filters?: {
   const persistedArticles = await tryListPersistedArticles({ channel: filters?.channel });
   if (persistedArticles && persistedArticles.length > 0) {
     return persistedArticles;
+  }
+
+  if (shouldUsePersistedArticlesOnly()) {
+    return [];
   }
 
   if (persistedArticles && isArticleDatabaseConfigured()) {
@@ -305,6 +313,10 @@ async function findArticleById(articleId: string) {
 
   if (article || channel !== "original") {
     return article ?? null;
+  }
+
+  if (shouldUsePersistedArticlesOnly()) {
+    return null;
   }
 
   return loadNewsWebArticleById(articleId).catch(() => null);
