@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轻读日语 - 扫码下载</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cream: #faf6f0;
+            --warm-white: #fffdfa;
+            --soft-cream: #f5efe6;
+            --ink: #2c2416;
+            --ink-light: #4a3f2f;
+            --muted: #8b7355;
+            --accent: #c9735b;
+            --accent-soft: #e8a590;
+            --accent-pink: #f4a4a0;
+            --sakura: #f8b4b4;
+            --gold: #d4a574;
+            --blue: #76b4bc;
+            --panel: rgba(255, 252, 246, 0.95);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, var(--warm-white) 0%, var(--cream) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--ink);
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .card {
+            background: var(--warm-white);
+            border-radius: 32px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(44, 36, 22, 0.15);
+            border: 1px solid rgba(200, 180, 150, 0.2);
+        }
+
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-pink) 100%);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: 0 10px 30px rgba(201, 115, 91, 0.3);
+        }
+
+        .app-name {
+            font-family: 'Noto Serif JP', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .app-desc {
+            color: var(--muted);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .qr-section {
+            background: var(--cream);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .qr-code {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(44, 36, 22, 0.1);
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .url-display {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--warm-white);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            word-break: break-all;
+            border: 1px dashed var(--gold);
+        }
+
+        .url-display strong {
+            color: var(--accent);
+        }
+
+        .instructions {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            font-size: 1.1rem;
+            color: var(--ink);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--cream);
+            border-radius: 16px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            font-size: 1rem;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-content p {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature h4 {
+            font-size: 0.9rem;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .feature p {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-pink) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(201, 115, 91, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(201, 115, 91, 0.4);
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(200, 180, 150, 0.3);
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Decorative */
+        .sakura {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        .sakura-1 { top: 10%; left: 5%; }
+        .sakura-2 { top: 20%; right: 8%; }
+        .sakura-3 { bottom: 15%; left: 10%; }
+        .sakura-4 { bottom: 25%; right: 5%; }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 2rem 1.5rem;
+            }
+
+            .app-name {
+                font-size: 2rem;
+            }
+
+            .qr-code {
+                width: 240px;
+                height: 240px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative -->
+    <div class="sakura sakura-1">🌸</div>
+    <div class="sakura sakura-2">🌸</div>
+    <div class="sakura sakura-3">🌸</div>
+    <div class="sakura sakura-4">🌸</div>
+
+    <div class="container">
+        <div class="card">
+            <!-- App Icon & Name -->
+            <div class="app-icon">📖</div>
+            <h1 class="app-name">轻读日语</h1>
+            <p class="app-desc">从新闻进入真实日语世界</p>
+
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <div class="qr-code">
+                    <!-- 这里的URL需要替换为实际的部署URL -->
+                    <img id="qr-image" src="" alt="二维码" />
+                </div>
+                <div class="url-display">
+                    访问地址：<strong id="app-url">正在生成...</strong>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>📱 使用步骤</h3>
+                
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>扫码访问</h4>
+                        <p>用手机相机扫描上方二维码</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>打开网页</h4>
+                        <p>点击弹出的地址访问应用</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>添加到主屏幕</h4>
+                        <p>iOS: 点击分享 → 添加到主屏幕<br>Android: 点击提示中的"安装"或菜单 → 添加到主屏幕</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>离线使用</h4>
+                        <p>安装后可离线阅读已缓存的文章</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">📰</div>
+                    <h4>真实新闻</h4>
+                    <p>NHK日语新闻</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📚</div>
+                    <h4>智能单词本</h4>
+                    <p>AI讲解释义</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🧠</div>
+                    <h4>科学复习</h4>
+                    <p>艾宾浩斯曲线</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <h4>PWA应用</h4>
+                    <p>即开即用</p>
+                </div>
+            </div>
+
+            <a href="#" id="direct-link" class="download-btn">
+                🔗 直接打开应用
+            </a>
+
+            <div class="footer">
+                <p>Japanese News Reading PWA</p>
+                <p>支持 iOS Safari / Android Chrome</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 自动检测当前访问的URL
+        const currentUrl = window.location.href.replace('/qr.html', '/');
+        const displayUrl = currentUrl.replace('http://', '').replace('https://', '');
+
+        // 显示URL
+        document.getElementById('app-url').textContent = displayUrl;
+        document.getElementById('direct-link').href = currentUrl;
+
+        // 生成二维码
+        // 使用 QR Server API 生成二维码
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(currentUrl)}&margin=10&format=png`;
+        document.getElementById('qr-image').src = qrUrl;
+
+        console.log('📱 App URL:', currentUrl);
+        console.log('📸 QR Code URL:', qrUrl);
+    </script>
+</body>
+</html>
