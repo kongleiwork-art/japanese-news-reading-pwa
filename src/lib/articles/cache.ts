@@ -1,4 +1,5 @@
 import { mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
@@ -15,7 +16,13 @@ type ArticleCacheRow = {
 let database: DatabaseSync | null = null;
 
 function getCachePath() {
-  return process.env.ARTICLES_SQLITE_CACHE_PATH ?? join(process.cwd(), ".cache", "articles.sqlite");
+  if (process.env.ARTICLES_SQLITE_CACHE_PATH) {
+    return process.env.ARTICLES_SQLITE_CACHE_PATH;
+  }
+
+  return process.env.VERCEL
+    ? join(tmpdir(), "articles.sqlite")
+    : join(process.cwd(), ".cache", "articles.sqlite");
 }
 
 function getDatabase() {
